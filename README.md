@@ -1,48 +1,48 @@
 # Insighta (Smart Farmer)
 
-تطبيق موبايل مبني بـ Flutter لإدارة المزارع الذكية (تربية الدواجن/الماشية)، بيساعد المزارع يراقب ويدير قطيعه وعملياته اليومية من مكان واحد، بواجهة تدعم اللغة العربية بشكل أساسي.
+A Flutter mobile app for smart farm management (poultry/livestock), helping farmers monitor and manage their flock and daily operations from one place, with Arabic as the primary UI language.
 
-## نظرة عامة
+## Overview
 
-- **اسم المشروع:** insighta
-- **الوصف:** Smart Farmer
-- **المنصات المدعومة:** Android, iOS, macOS, (وبنية جاهزة لـ Web وWindows وLinux)
-- **اللغة الافتراضية:** العربية (مع دعم التدويل عبر `intl` و `flutter_localizations`)
+- **Project name:** 
+- **Description:** Smart Farmer
+- **Supported platforms:** Android, iOS, macOS (with scaffolding also present for Web, Windows, and Linux)
+- **Default language:** Arabic (with internationalization support via `intl` and `flutter_localizations`)
 
-## الميزات الرئيسية
+## Key Features
 
-بناءً على وحدات (modules) المشروع:
+Based on the project's modules:
 
-- **تسجيل الدخول (Login):** مصادقة المستخدم، مع دعم البصمة/الدخول البيومتري عبر `local_auth` وتخزين آمن للبيانات عبر `flutter_secure_storage`.
-- **لوحة التحكم (Dashboard):** عرض ملخص وإحصائيات المزرعة في شاشة رئيسية.
-- **قائمة الحيوانات (Animal List):** عرض وإدارة قائمة الحيوانات/القطيع.
-- **القطيع (Flock):** إدارة بيانات القطيع بشكل تفصيلي.
-- **الحالات المريضة (Sick List):** متابعة وتسجيل الحيوانات المريضة.
-- **العمليات الميدانية (Field Ops):** تسجيل ومتابعة العمليات والأنشطة الميدانية اليومية.
-- **البروتوكولات (Protocols):** إدارة بروتوكولات الرعاية والتطعيم وغيرها.
-- **الإحصائيات (Stats):** عرض بيانات ومؤشرات بصرية (Gauges) عبر `syncfusion_flutter_gauges`.
-- **الإشعارات:** إشعارات فورية عبر `Firebase Cloud Messaging`.
-- **الأمان:** فحص أجهزة الروت (Root) عبر `root_checker_plus`، وتخزين آمن للبيانات الحساسة.
+- **Login:** User authentication, with biometric login support via `local_auth` and secure data storage via `flutter_secure_storage`.
+- **Dashboard:** Main screen showing a summary and overview of the farm.
+- **Animal List:** View and manage the list of animals/flock.
+- **Flock:** Detailed management of flock data.
+- **Sick List:** Track and log sick animals.
+- **Field Ops:** Log and track daily field operations and activities.
+- **Protocols:** Manage care, vaccination, and other protocols.
+- **Stats:** Visual data and indicators (gauges) via `syncfusion_flutter_gauges`.
+- **Notifications:** Push notifications via Firebase Cloud Messaging.
+- **Security:** Root detection via `root_checker_plus`, and secure storage for sensitive data.
 
-## التقنيات المستخدمة
+## Tech Stack
 
-- **Flutter / Dart** (SDK ‎>=3.4.3)
-- **GetX** (`get`) لإدارة الحالة والتنقل (State Management + Routing) — بنية المشروع مقسّمة إلى `bindings` / `controllers` / `views` لكل وحدة.
-- **Firebase** (`firebase_core`, `firebase_messaging`) للإشعارات.
-- **HTTP** للتواصل مع الـ API الخاص بالسيرفر.
-- **flutter_secure_storage** و **local_auth** للأمان والمصادقة.
-- **webview_flutter** و **video_player** لعرض محتوى ويب وفيديو داخل التطبيق.
-- **flutter_screenutil** لتصميم متجاوب مع مختلف أحجام الشاشات.
+- **Flutter / Dart** (SDK >=3.4.3)
+- **GetX** (`get`) for state management and routing — the project follows a `bindings` / `controllers` / `views` structure per module.
+- **Firebase** (`firebase_core`, `firebase_messaging`) for push notifications.
+- **HTTP** for communicating with the backend API.
+- **flutter_secure_storage** and **local_auth** for security and authentication.
+- **webview_flutter** and **video_player** for displaying web and video content in-app.
+- **flutter_screenutil** for responsive design across screen sizes.
 
-## هيكل المشروع
+## Project Structure
 
 ```
 lib/
-├── main.dart              # نقطة بداية التطبيق
-├── app.dart                # إعداد التطبيق العام
-├── repo.dart                # طبقة الوصول للبيانات (Repository)
-├── models/                  # نماذج البيانات
-├── modules/                 # الوحدات الوظيفية (كل وحدة فيها bindings/controllers/views)
+├── main.dart              # App entry point
+├── app.dart                # Global app setup
+├── repo.dart                # Data access layer (Repository)
+├── models/                  # Data models
+├── modules/                 # Feature modules (each with bindings/controllers/views)
 │   ├── login/
 │   ├── dashboard/
 │   ├── animal_list/
@@ -53,31 +53,31 @@ lib/
 │   ├── inventory/
 │   ├── stats/
 │   └── shell/
-├── web_services/            # طبقة الاتصال بالـ API
-├── widgets/                  # ويدجتس مشتركة قابلة لإعادة الاستخدام
-├── styles/                   # الألوان والخطوط والأنماط العامة
-└── utilities/                # دوال وأدوات مساعدة
+├── web_services/            # API communication layer
+├── widgets/                  # Shared reusable widgets
+├── styles/                   # Colors, fonts, and general styling
+└── utilities/                # Helper functions and utilities
 ```
 
-## المتطلبات
+## Requirements
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (نسخة متوافقة مع Dart ‎>=3.4.3)
-- Android Studio أو VS Code مع إضافات Flutter/Dart
-- جهاز حقيقي أو محاكي (Emulator) لتشغيل التطبيق
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (compatible with Dart >=3.4.3)
+- Android Studio or VS Code with Flutter/Dart plugins
+- A physical device or emulator to run the app
 
-## طريقة التشغيل
+## Getting Started
 
 ```bash
-# تثبيت الحزم
+# Install dependencies
 flutter pub get
 
-# تشغيل التطبيق في وضع Debug
+# Run the app in debug mode
 flutter run
 
-# بناء نسخة Release لأندرويد
+# Build a release version for Android
 flutter run --release
 ```
 
-## ملاحظات
+## Notes
 
-- التطبيق مربوط بـ Firebase، لذا يلزم وجود ملفات إعداد Firebase الخاصة بالمشروع (`google-services.json` لأندرويد و`GoogleService-Info.plist` لـ iOS) لتفعيل الإشعارات بشكل كامل.
+- The app is integrated with Firebase, so the project's Firebase config files (`google-services.json` for Android and `GoogleService-Info.plist` for iOS) are required to fully enable push notifications.
