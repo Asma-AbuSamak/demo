@@ -1,0 +1,47 @@
+name: insighta
+description: "Smart Farmer"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
+
+  intl: any
+  cupertino_icons: ^1.0.6
+  get: ^4.6.5
+  http: ^0.13.5
+  video_player: ^2.5.2
+  root_checker_plus: ^0.0.4
+  percent_indicator: ^4.2.4
+  device_info_plus: ^10.0.0
+  firebase_core: ^2.17.0
+  firebase_messaging: ^14.7.0
+  permission_handler: ^12.0.0+1
+  syncfusion_flutter_gauges: ^32.1.25
+  flutter_secure_storage: ^9.2.4
+  local_auth: ^2.3.0
+  url_launcher: ^6.3.2
+  webview_flutter: ^4.13.0
+  flutter_widget_from_html: ^0.15.0
+  flutter_screenutil: ^5.9.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  fonts:
+    - family: insighta New design
+      fonts:
+        - asset: assets/fonts/insightaIcons.ttf

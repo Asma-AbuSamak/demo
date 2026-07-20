@@ -1,0 +1,28 @@
+/linux/
+/ios/build/
+/web/
+/windows/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.pub-cache/
+.pub/
+
+# Android
+android/.gradle/
+android/local.properties
+android/**/*.iml
+android/captures/
+
+# IDE
+.idea/
+*.iml
+*.iws
+.vscode/
+
+# macOS
+.DS_Store

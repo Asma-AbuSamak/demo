@@ -1,0 +1,1 @@
+/Users/moataz/StudioProjects/Insighta.Mobile/insighta/build/app/intermediates/cxx/RelWithDebInfo/593q6c2y/obj/armeabi-v7a
