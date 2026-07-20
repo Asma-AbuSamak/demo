@@ -4,7 +4,7 @@ A Flutter mobile app for smart farm management (poultry/livestock), helping farm
 
 ## Overview
 
-- **Project name:** 
+- **Project name:** FlockSight
 - **Description:** Smart Farmer
 - **Supported platforms:** Android, iOS, macOS (with scaffolding also present for Web, Windows, and Linux)
 - **Default language:** Arabic (with internationalization support via `intl` and `flutter_localizations`)
