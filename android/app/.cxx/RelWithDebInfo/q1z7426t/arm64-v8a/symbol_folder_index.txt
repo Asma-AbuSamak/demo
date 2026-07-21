@@ -1,1 +1,0 @@
-/Users/moataz/StudioProjects/Insighta.Mobile/insighta/build/app/intermediates/cxx/RelWithDebInfo/q1z7426t/obj/arm64-v8a

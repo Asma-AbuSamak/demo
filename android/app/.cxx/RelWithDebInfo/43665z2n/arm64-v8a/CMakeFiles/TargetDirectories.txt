@@ -1,2 +1,0 @@
-/Users/moataz/StudioProjects/Insighta.Mobile/insighta/android/app/.cxx/RelWithDebInfo/43665z2n/arm64-v8a/CMakeFiles/rebuild_cache.dir
-/Users/moataz/StudioProjects/Insighta.Mobile/insighta/android/app/.cxx/RelWithDebInfo/43665z2n/arm64-v8a/CMakeFiles/edit_cache.dir
