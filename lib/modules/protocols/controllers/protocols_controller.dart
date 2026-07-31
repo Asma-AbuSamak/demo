@@ -1,8 +1,7 @@
 import 'package:get/get.dart';
-import 'package:collection/collection.dart';
 
 import 'package:insighta/utilities/date_utils.dart';
-import 'package:insighta/models/vaccine_protocol.dart';
+import 'package:insighta/models/vaccine_protocol/vaccine_protocol.dart';
 import 'package:insighta/repo.dart/medical_repository.dart';
 import 'package:insighta/web_services/catalog_service.dart';
 import 'package:insighta/modules/dashboard/dashboard_controller.dart';
@@ -17,10 +16,10 @@ class ProtocolsController extends GetxController {
   // نموذج الإضافة (يُستخدم في شاشة إضافة مطعوم/علاج)
   final formName = ''.obs;
   final formDisease = ''.obs;      // للعلاج فقط
-  final formLastDate = ''.obs;     // تاريخ التطعيم / أخذ العلاج
+  final formLastDate = Rxn<int>();     // تاريخ التطعيم / أخذ العلاج
   final formSchedule = ''.obs;     // للمطعوم: سنوياً...
   final formInterval = ''.obs;     // للعلاج: كل 6 أشهر...
-  final formNextDate = ''.obs;     // يُحسب تلقائياً أو يدوياً
+  final formNextDate = Rxn<int>();     // يُحسب تلقائياً أو يدوياً
 
   @override
   void onInit() {
@@ -40,34 +39,32 @@ class ProtocolsController extends GetxController {
       protocols.where((p) => p.type == ProtocolType.treatment).toList();
 
   bool isOverdue(VaccineProtocol p) =>
-      p.nextDate != null && p.nextDate!.isNotEmpty && AppDate.isExpired(p.nextDate!);
+      p.nextDateUtc != null && AppDate.isExpiredEpoch(p.nextDateUtc!);
 
   // ── نموذج الإضافة ──
   void resetForm() {
     formName.value = '';
     formDisease.value = '';
-    formLastDate.value = '';
+    formLastDate.value = null;
     formSchedule.value = '';
     formInterval.value = '';
-    formNextDate.value = '';
+    formNextDate.value = null;
   }
 
   /// حساب تاريخ الجرعة القادمة تلقائياً للمطعوم (حسب الجدول بالأشهر).
   void recomputeVaccineNext() {
     final opt = catalog.scheduleByLabel(formSchedule.value);
-    if (opt != null && opt.months > 0 && formLastDate.value.isNotEmpty) {
-      final d = DateTime.parse(formLastDate.value);
+    if (opt != null && opt.months > 0 && formLastDate.value != null) {
       formNextDate.value =
-          AppDate.addMonthsIso(d, opt.months); // تعبئة تلقائية
+          AppDate.addMonthsEpoch(formLastDate.value!, opt.months); // تعبئة تلقائية
     }
   }
 
   /// حساب تاريخ الجرعة القادمة تلقائياً للعلاج (حسب الفترة بالأيام).
   void recomputeTreatmentNext() {
     final opt = catalog.intervalByLabel(formInterval.value);
-    if (opt != null && opt.days > 0 && formLastDate.value.isNotEmpty) {
-      final d = DateTime.parse(formLastDate.value);
-      formNextDate.value = AppDate.addDaysIso(d, opt.days);
+    if (opt != null && opt.days > 0 && formLastDate.value != null) {
+      formNextDate.value = AppDate.addDaysEpoch(formLastDate.value!, opt.days);
     }
   }
 
@@ -85,17 +82,21 @@ class ProtocolsController extends GetxController {
       // إضافة على سجل موجود: التاريخ الجديد يصبح "آخر جرعة" + جرعة قادمة جديدة
       await _medRepo.updateProtocol(existing.copyWith(
         schedule: formSchedule.value,
-        lastDate: formLastDate.value,
-        nextDate: formNextDate.value,
+        lastDateUtc: formLastDate.value,
+        nextDateUtc: formNextDate.value,
+        updatedAtUtc: AppDate.nowEpoch(),
       ));
     } else {
+      final now = AppDate.nowEpoch();
       await _medRepo.addProtocol(VaccineProtocol(
         id: 'p${DateTime.now().millisecondsSinceEpoch}',
         type: ProtocolType.vaccine,
         name: name,
         schedule: formSchedule.value,
-        lastDate: formLastDate.value,
-        nextDate: formNextDate.value,
+        lastDateUtc: formLastDate.value,
+        nextDateUtc: formNextDate.value,
+        createdAtUtc: now,
+        updatedAtUtc: now,
       ));
     }
     await load();
@@ -116,18 +117,22 @@ class ProtocolsController extends GetxController {
       await _medRepo.updateProtocol(existing.copyWith(
         diseaseType: formDisease.value,
         dosageInterval: formInterval.value,
-        lastDate: formLastDate.value,
-        nextDate: formNextDate.value,
+        lastDateUtc: formLastDate.value,
+        nextDateUtc: formNextDate.value,
+        updatedAtUtc: AppDate.nowEpoch(),
       ));
     } else {
+      final now = AppDate.nowEpoch();
       await _medRepo.addProtocol(VaccineProtocol(
         id: 'p${DateTime.now().millisecondsSinceEpoch}',
         type: ProtocolType.treatment,
         name: name,
         diseaseType: formDisease.value,
         dosageInterval: formInterval.value,
-        lastDate: formLastDate.value,
-        nextDate: formNextDate.value,
+        lastDateUtc: formLastDate.value,
+        nextDateUtc: formNextDate.value,
+        createdAtUtc: now,
+        updatedAtUtc: now,
       ));
     }
     await load();

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/models/med_record.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/models/med_record/med_record.dart';
+import 'package:insighta/styles/theme_x.dart';
 
 
 /// كل القوائم الثابتة والخيارات (مطابقة لملف React).
 class AppConstants {
+  /// <look up data> 
   static const List<String> breeds = [
     'نجدي', 'نعيمي', 'حجازي', 'عوسي', 'بربري', 'رومانوف', 'أوسيمي',
   ];
@@ -49,14 +50,14 @@ class StatusView {
   final Color fg;
   const StatusView(this.label, this.bg, this.fg);
 
-  static StatusView of(AnimalStatus s) {
+  static StatusView of(BuildContext context, AnimalStatus s) {
     switch (s) {
       case AnimalStatus.healthy:
-        return const StatusView('بصحة جيدة', AppColors.emeraldBg, AppColors.emeraldFg);
+        return StatusView('بصحة جيدة', context.palette.successBg, context.palette.successFg);
       case AnimalStatus.sick:
-        return const StatusView('مريض', AppColors.redBg, AppColors.redFg);
+        return StatusView('مريض', context.palette.dangerBg, context.palette.dangerFg);
       case AnimalStatus.pregnant:
-        return const StatusView('حامل', AppColors.yellowBg, AppColors.yellowFg);
+        return StatusView('حامل', context.palette.warningBg, context.palette.warningFg);
     }
   }
 }
@@ -69,14 +70,14 @@ class MedTypeView {
   final IconData icon;
   const MedTypeView(this.label, this.bg, this.fg, this.icon);
 
-  static MedTypeView of(MedType t) {
+  static MedTypeView of(BuildContext context, MedType t) {
     switch (t) {
       case MedType.vaccine:
-        return const MedTypeView('تطعيم', AppColors.blueBg, AppColors.blueFg, Icons.shield_outlined);
+        return MedTypeView('تطعيم', context.palette.infoBg, context.palette.infoFg, Icons.shield_outlined);
       case MedType.treatment:
-        return const MedTypeView('علاج', AppColors.redBg, AppColors.redFg, Icons.medical_services_outlined);
+        return MedTypeView('علاج', context.palette.dangerBg, context.palette.dangerFg, Icons.medical_services_outlined);
       case MedType.checkup:
-        return const MedTypeView('فحص', AppColors.emeraldBg, AppColors.emeraldFg, Icons.monitor_heart_outlined);
+        return MedTypeView('فحص', context.palette.successBg, context.palette.successFg, Icons.monitor_heart_outlined);
     }
   }
 }

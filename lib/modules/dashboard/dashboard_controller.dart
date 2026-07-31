@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/models/med_record.dart';
-import 'package:insighta/models/vaccine_protocol.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/models/med_record/med_record.dart';
+import 'package:insighta/models/vaccine_protocol/vaccine_protocol.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
 import 'package:insighta/repo.dart/medical_repository.dart';
 import 'package:insighta/repo.dart/records_repository.dart';

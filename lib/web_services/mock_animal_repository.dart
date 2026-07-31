@@ -1,6 +1,6 @@
 import 'package:insighta/repo.dart/animal_repository.dart';
 
-import '../models/animal.dart';
+import '../models/animal/animal.dart';
 import 'mock_data.dart';
 
 class MockAnimalRepository implements IAnimalRepository {

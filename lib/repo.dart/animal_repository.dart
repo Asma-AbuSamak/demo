@@ -1,4 +1,4 @@
-import '../models/animal.dart';
+import '../models/animal/animal.dart';
 
 abstract class IAnimalRepository {
   Future<List<Animal>> getAll();

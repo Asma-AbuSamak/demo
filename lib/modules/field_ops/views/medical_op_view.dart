@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/animal_badge.dart';
 import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/back_header.dart';
 import 'package:insighta/widgets/custom_select.dart';
 import 'package:insighta/widgets/saved_overlay.dart';
 import 'package:insighta/widgets/scan_id_input.dart';
-import 'package:insighta/models/med_record.dart';
+import 'package:insighta/models/med_record/med_record.dart';
 import '../controllers/medical_op_controller.dart';
 
 class MedicalOpView extends GetView<MedicalOpController> {
@@ -18,7 +18,7 @@ class MedicalOpView extends GetView<MedicalOpController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           const BackHeader(title: 'تسجيل علاج / فحص'),
@@ -26,9 +26,9 @@ class MedicalOpView extends GetView<MedicalOpController> {
             child: Obx(() {
               switch (controller.step.value) {
                 case MedStep.scanId:
-                  return _scanStep();
+                  return _scanStep(context);
                 case MedStep.form:
-                  return _formStep();
+                  return _formStep(context);
                 case MedStep.saved:
                   return const SavedOverlay(message: 'تم تسجيل السجل الطبي بنجاح');
               }
@@ -39,7 +39,7 @@ class MedicalOpView extends GetView<MedicalOpController> {
     );
   }
 
-  Widget _scanStep() {
+  Widget _scanStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -55,12 +55,13 @@ class MedicalOpView extends GetView<MedicalOpController> {
                 label: 'بحث',
                 enabled: controller.canSearch,
                 onTap: controller.search,
+                context: context,
               )),
           Obx(() => controller.notFound.value
               ? Padding(
                   padding: EdgeInsets.only(top: 12.h),
                   child: Text('لا يوجد خروف بهذا الـ ID',
-                      style: TextStyle(color: AppColors.redFg, fontSize: 12.sp)),
+                      style: TextStyle(color: context.palette.dangerFg, fontSize: 12.sp)),
                 )
               : const SizedBox.shrink()),
         ],
@@ -68,7 +69,7 @@ class MedicalOpView extends GetView<MedicalOpController> {
     );
   }
 
-  Widget _formStep() {
+  Widget _formStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -82,11 +83,11 @@ class MedicalOpView extends GetView<MedicalOpController> {
             label: 'نوع السجل',
             child: Obx(() => Row(
                   children: [
-                    _typeBtn(MedType.checkup, 'فحص', Icons.monitor_heart_outlined),
+                    _typeBtn(MedType.checkup, 'فحص', Icons.monitor_heart_outlined, context),
                     SizedBox(width: 8.w),
-                    _typeBtn(MedType.treatment, 'علاج', Icons.medical_services_outlined),
+                    _typeBtn(MedType.treatment, 'علاج', Icons.medical_services_outlined, context),
                     SizedBox(width: 8.w),
-                    _typeBtn(MedType.vaccine, 'تطعيم', Icons.shield_outlined),
+                    _typeBtn(MedType.vaccine, 'تطعيم', Icons.shield_outlined, context),
                   ],
                 )),
           ),
@@ -110,18 +111,18 @@ class MedicalOpView extends GetView<MedicalOpController> {
               margin: EdgeInsets.only(top: 12.h),
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
-                color: AppColors.yellowBg,
+                color: context.palette.warningBg,
                 border: Border.all(color: const Color(0xFFFDE68A)),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(children: [
                 Icon(Icons.warning_amber_rounded,
-                    color: AppColors.yellowFg, size: 18.sp),
+                    color: context.palette.warningFg, size: 18.sp),
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Text(w,
                       style: TextStyle(
-                          color: AppColors.yellowFg,
+                          color: context.palette.warningFg,
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w600)),
                 ),
@@ -136,7 +137,7 @@ class MedicalOpView extends GetView<MedicalOpController> {
             child: TextField(
               maxLines: 3,
               onChanged: (v) => controller.notes.value = v,
-              decoration: appInputDecoration('ملاحظات إضافية...'),
+              decoration: appInputDecoration(context, 'ملاحظات إضافية...'),
             ),
           ),
           SizedBox(height: 20.h),
@@ -145,13 +146,14 @@ class MedicalOpView extends GetView<MedicalOpController> {
                 label: '✓  حفظ السجل',
                 enabled: controller.canSave,
                 onTap: controller.save,
+                context: context,
               )),
         ],
       ),
     );
   }
 
-  Widget _typeBtn(MedType t, String label, IconData icon) {
+  Widget _typeBtn(MedType t, String label, IconData icon, BuildContext context) {
     final active = controller.medType.value == t;
     return Expanded(
       child: GestureDetector(
@@ -159,22 +161,22 @@ class MedicalOpView extends GetView<MedicalOpController> {
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10.h),
           decoration: BoxDecoration(
-            color: active ? AppColors.primaryDark : Colors.white,
+            color: active ? context.palette.primaryStrong : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-                color: active ? AppColors.primaryDark : AppColors.border,
+                color: active ? context.palette.primaryStrong : context.palette.border,
                 width: 1.5),
           ),
           child: Column(
             children: [
               Icon(icon,
-                  size: 18.sp, color: active ? Colors.white : AppColors.textMuted),
+                  size: 18.sp, color: active ? Colors.white : context.palette.textMuted),
               SizedBox(height: 4.h),
               Text(label,
                   style: TextStyle(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
-                      color: active ? Colors.white : AppColors.textMuted)),
+                      color: active ? Colors.white : context.palette.textMuted)),
             ],
           ),
         ),
@@ -186,13 +188,14 @@ class MedicalOpView extends GetView<MedicalOpController> {
     required String label,
     required bool enabled,
     required VoidCallback onTap,
+    required BuildContext context,
   }) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: enabled ? onTap : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryDark,
+          backgroundColor: context.palette.primaryStrong,
           disabledBackgroundColor: const Color(0xFF9DE0C6),
           padding: EdgeInsets.symmetric(vertical: 14.h),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/animal_badge.dart';
 import 'package:insighta/widgets/animal_form_fields.dart';
 import 'package:insighta/widgets/back_header.dart';
@@ -17,7 +17,7 @@ class EditOpView extends GetView<EditOpController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           const BackHeader(title: 'تعديل بيانات'),
@@ -25,7 +25,7 @@ class EditOpView extends GetView<EditOpController> {
             child: Obx(() {
               switch (controller.step.value) {
                 case EditStep.scanId:
-                  return _scanStep();
+                  return _scanStep(context);
                 case EditStep.form:
                   return _formStep(context);
                 case EditStep.saved:
@@ -38,7 +38,7 @@ class EditOpView extends GetView<EditOpController> {
     );
   }
 
-  Widget _scanStep() {
+  Widget _scanStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(children: [
@@ -58,7 +58,7 @@ class EditOpView extends GetView<EditOpController> {
             ? Padding(
                 padding: EdgeInsets.only(top: 12.h),
                 child: Text('لا يوجد خروف بهذا الـ ID',
-                    style: TextStyle(color: AppColors.redFg, fontSize: 12.sp)),
+                    style: TextStyle(color: context.palette.dangerFg, fontSize: 12.sp)),
               )
             : const SizedBox.shrink()),
       ]),

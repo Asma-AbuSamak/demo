@@ -1,6 +1,6 @@
-import 'package:insighta/models/midicine.dart';
-import '../models/vendor.dart';
-import '../models/medicine_log.dart';
+import 'package:insighta/models/medicine/medicine.dart';
+import '../models/vendor/vendor.dart';
+import '../models/medicine_log/medicine_log.dart';
 
 abstract class IInventoryRepository {
   // Medicines

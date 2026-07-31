@@ -1,4 +1,4 @@
-name: FlockSight
+name: insighta
 description: "Smart Farmer"
 publish_to: 'none'
 version: 1.0.0+1
@@ -31,11 +31,21 @@ dependencies:
   webview_flutter: ^4.13.0
   flutter_widget_from_html: ^0.15.0
   flutter_screenutil: ^5.9.3
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  drift: ^2.20.3
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.4
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  build_runner: ^2.4.9
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
+  drift_dev: ^2.20.3
 
 flutter:
   generate: true

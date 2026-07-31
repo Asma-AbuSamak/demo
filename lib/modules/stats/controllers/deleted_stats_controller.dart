@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:insighta/repo.dart/records_repository.dart';
+import 'package:insighta/utilities/date_utils.dart';
 
 class DeathMonth {
   final String key; // yyyy-MM
@@ -37,8 +38,8 @@ class DeletedStatsController extends GetxController {
     // year -> month -> cause -> count
     final map = <String, Map<String, Map<String, int>>>{};
     for (final d in deaths) {
-      final y = d.date.substring(0, 4);
-      final m = d.date.substring(0, 7);
+      final y = AppDate.yearOfEpoch(d.dateUtc).toString();
+      final m = '$y-${AppDate.monthOfEpoch(d.dateUtc).toString().padLeft(2, '0')}';
       map.putIfAbsent(y, () => {});
       map[y]!.putIfAbsent(m, () => {});
       map[y]![m]!.update(d.cause, (v) => v + 1, ifAbsent: () => 1);

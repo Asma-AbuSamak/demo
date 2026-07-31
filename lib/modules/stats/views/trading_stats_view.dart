@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/utilities/date_utils.dart';
 import 'package:insighta/widgets/app_card.dart';
 import 'package:insighta/widgets/back_header.dart';
@@ -17,7 +17,7 @@ class TradingStatsView extends GetView<TradingStatsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           Obx(() => BackHeader(
@@ -33,12 +33,12 @@ class TradingStatsView extends GetView<TradingStatsController> {
               if (controller.years.isEmpty) {
                 return Center(
                   child: Text('لا توجد عمليات بيع أو شراء',
-                      style: TextStyle(fontSize: 14.sp, color: AppColors.textMuted)),
+                      style: TextStyle(fontSize: 14.sp, color: context.palette.textMuted)),
                 );
               }
               return ListView(
                 padding: EdgeInsets.all(16.w),
-                children: controller.years.map(_yearCard).toList(),
+                children: controller.years.map((y) => _yearCard(y, context)).toList(),
               );
             }),
           ),
@@ -47,11 +47,11 @@ class TradingStatsView extends GetView<TradingStatsController> {
     );
   }
 
-  Widget _yearCard(TradeYear y) {
+  Widget _yearCard(TradeYear y, BuildContext context) {
     final open = controller.expanded.contains(y.year);
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
-      decoration: cardDecoration(),
+      decoration: cardDecoration(context),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
@@ -62,9 +62,9 @@ class TradingStatsView extends GetView<TradingStatsController> {
               padding: EdgeInsets.all(16.w),
               child: Row(children: [
                 Icon(open ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: AppColors.textMuted),
+                    color: context.palette.textMuted),
                 SizedBox(width: 8.w),
-                _pctPill(y.profitPct),
+                _pctPill(y.profitPct, context),
                 const Spacer(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -72,7 +72,7 @@ class TradingStatsView extends GetView<TradingStatsController> {
                     Text('سنة ${y.year}',
                         style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold)),
                     Text('اشترى ${y.bought} · باع ${y.sold}',
-                        style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                        style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
                   ],
                 ),
                 SizedBox(width: 12.w),
@@ -80,10 +80,10 @@ class TradingStatsView extends GetView<TradingStatsController> {
                   width: 34.w,
                   height: 34.w,
                   alignment: Alignment.center,
-                  decoration: const BoxDecoration(color: AppColors.accentGreen, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: context.palette.accentGreen, shape: BoxShape.circle),
                   child: Text(y.year,
                       style: TextStyle(
-                          fontSize: 9.sp, fontWeight: FontWeight.w900, color: AppColors.emeraldFg)),
+                          fontSize: 9.sp, fontWeight: FontWeight.w900, color: context.palette.successFg)),
                 ),
               ]),
             ),
@@ -92,8 +92,8 @@ class TradingStatsView extends GetView<TradingStatsController> {
             Padding(
               padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 12.h),
               child: Column(children: [
-                ...y.months.map(_monthBlock),
-                _yearTotal(y),
+                ...y.months.map((m) => _monthBlock(m, context)),
+                _yearTotal(y, context),
               ]),
             ),
         ],
@@ -101,11 +101,11 @@ class TradingStatsView extends GetView<TradingStatsController> {
     );
   }
 
-  Widget _monthBlock(TradeMonth m) {
+  Widget _monthBlock(TradeMonth m, BuildContext context) {
     return Container(
       margin: EdgeInsets.only(top: 8.h),
       padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(color: AppColors.pageBg, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: context.palette.pageBg, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -117,19 +117,19 @@ class TradingStatsView extends GetView<TradingStatsController> {
           SizedBox(height: 8.h),
           Row(children: [
             if (m.bought > 0)
-              Expanded(child: _cell('شراء', '${m.bought} رأس', '${_money.format(m.buyAmount)} ر', AppColors.blueFg)),
+              Expanded(child: _cell('شراء', '${m.bought} رأس', '${_money.format(m.buyAmount)} ر', context.palette.infoFg, context)),
             if (m.bought > 0 && m.sold > 0) SizedBox(width: 8.w),
             if (m.sold > 0)
-              Expanded(child: _cell('بيع', '${m.sold} رأس', '${_money.format(m.sellAmount)} ر', AppColors.emeraldFg)),
+              Expanded(child: _cell('بيع', '${m.sold} رأس', '${_money.format(m.sellAmount)} ر', context.palette.successFg, context)),
           ]),
           SizedBox(height: 8.h),
-          _pctLine(m.profitPct),
+          _pctLine(m.profitPct, context),
         ],
       ),
     );
   }
 
-  Widget _cell(String title, String count, String amount, Color color) {
+  Widget _cell(String title, String count, String amount, Color color, BuildContext context) {
     return Container(
       padding: EdgeInsets.all(10.w),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
@@ -139,23 +139,23 @@ class TradingStatsView extends GetView<TradingStatsController> {
           Text(title, style: TextStyle(fontSize: 11.sp, color: color, fontWeight: FontWeight.bold)),
           SizedBox(height: 4.h),
           Text(count, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w900)),
-          Text(amount, style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+          Text(amount, style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
         ],
       ),
     );
   }
 
-  Widget _yearTotal(TradeYear y) {
+  Widget _yearTotal(TradeYear y, BuildContext context) {
     final loss = y.profitPct < 0;
     return Container(
       margin: EdgeInsets.only(top: 8.h),
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-        color: loss ? AppColors.redBg : AppColors.emeraldBg,
+        color: loss ? context.palette.dangerBg : context.palette.successBg,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(children: [
-        _pctPill(y.profitPct),
+        _pctPill(y.profitPct, context),
         const Spacer(),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -163,14 +163,14 @@ class TradingStatsView extends GetView<TradingStatsController> {
             Text('إجمالي سنة ${y.year}',
                 style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold)),
             Text('شراء ${_money.format(y.buyAmount)} ر · بيع ${_money.format(y.sellAmount)} ر',
-                style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
           ],
         ),
       ]),
     );
   }
 
-  Widget _pctLine(double pct) {
+  Widget _pctLine(double pct, BuildContext context) {
     final loss = pct < 0;
     return Align(
       alignment: Alignment.centerRight,
@@ -179,23 +179,23 @@ class TradingStatsView extends GetView<TradingStatsController> {
         style: TextStyle(
             fontSize: 11.sp,
             fontWeight: FontWeight.bold,
-            color: loss ? AppColors.redFg : AppColors.emeraldFg),
+            color: loss ? context.palette.dangerFg : context.palette.successFg),
       ),
     );
   }
 
-  Widget _pctPill(double pct) {
+  Widget _pctPill(double pct, BuildContext context) {
     final loss = pct < 0;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
       decoration: BoxDecoration(
-          color: loss ? AppColors.redBg : AppColors.emeraldBg,
+          color: loss ? context.palette.dangerBg : context.palette.successBg,
           borderRadius: BorderRadius.circular(20)),
       child: Text('${pct.toStringAsFixed(1)}%',
           style: TextStyle(
               fontSize: 11.sp,
               fontWeight: FontWeight.bold,
-              color: loss ? AppColors.redFg : AppColors.emeraldFg)),
+              color: loss ? context.palette.dangerFg : context.palette.successFg)),
     );
   }
 }

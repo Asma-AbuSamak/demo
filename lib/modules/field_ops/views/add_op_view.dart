@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/animal_form_fields.dart';
 import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/back_header.dart';
@@ -16,20 +16,20 @@ class AddOpView extends GetView<AddOpController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           const BackHeader(title: 'إضافة خروف جديد'),
           Obx(() => controller.step.value == AddStep.saved
               ? const SizedBox.shrink()
-              : _stepper()),
+              : _stepper(context)),
           Expanded(
             child: Obx(() {
               switch (controller.step.value) {
                 case AddStep.rfid:
-                  return _rfidStep();
+                  return _rfidStep(context);
                 case AddStep.details:
-                  return _detailsStep();
+                  return _detailsStep(context);
                 case AddStep.saved:
                   return const SavedOverlay(message: 'تمت إضافة الخروف بنجاح');
               }
@@ -40,7 +40,7 @@ class AddOpView extends GetView<AddOpController> {
     );
   }
 
-  Widget _stepper() {
+  Widget _stepper(BuildContext context) {
     final onDetails = controller.step.value == AddStep.details;
     return Container(
       color: Colors.white,
@@ -48,20 +48,20 @@ class AddOpView extends GetView<AddOpController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _stepDot('1', 'رقم الشريحة', true),
-          Container(width: 40.w, height: 2.h, color: onDetails ? AppColors.primary : AppColors.border),
-          _stepDot('2', 'البيانات', onDetails),
+          _stepDot('1', 'رقم الشريحة', true, context),
+          Container(width: 40.w, height: 2.h, color: onDetails ? context.colors.primary : context.palette.border),
+          _stepDot('2', 'البيانات', onDetails, context),
         ],
       ),
     );
   }
 
-  Widget _stepDot(String n, String label, bool active) {
+  Widget _stepDot(String n, String label, bool active, BuildContext context) {
     return Row(children: [
       Text(label,
           style: TextStyle(
               fontSize: 11.sp,
-              color: active ? AppColors.primaryDark : AppColors.textMuted,
+              color: active ? context.palette.primaryStrong : context.palette.textMuted,
               fontWeight: FontWeight.w600)),
       SizedBox(width: 6.w),
       Container(
@@ -69,18 +69,18 @@ class AddOpView extends GetView<AddOpController> {
         height: 22.w,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            color: active ? AppColors.primaryDark : AppColors.border,
+            color: active ? context.palette.primaryStrong : context.palette.border,
             shape: BoxShape.circle),
         child: Text(n,
             style: TextStyle(
-                color: active ? Colors.white : AppColors.textMuted,
+                color: active ? Colors.white : context.palette.textMuted,
                 fontSize: 11.sp,
                 fontWeight: FontWeight.bold)),
       ),
     ]);
   }
 
-  Widget _rfidStep() {
+  Widget _rfidStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -92,9 +92,9 @@ class AddOpView extends GetView<AddOpController> {
                   width: 120.w,
                   height: 120.w,
                   decoration: BoxDecoration(
-                    color: AppColors.accentLight,
+                    color: context.palette.accentLight,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: AppColors.primary, width: 2),
+                    border: Border.all(color: context.colors.primary, width: 2),
                   ),
                   child: controller.scanning.value
                       ? const Center(child: CircularProgressIndicator())
@@ -102,26 +102,26 @@ class AddOpView extends GetView<AddOpController> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.qr_code_scanner,
-                                size: 40.sp, color: AppColors.primaryDark),
+                                size: 40.sp, color: context.palette.primaryStrong),
                             SizedBox(height: 6.h),
                             Text('مسح بالجهاز',
                                 style: TextStyle(
                                     fontSize: 12.sp,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.primaryDark)),
+                                    color: context.palette.primaryStrong)),
                           ],
                         ),
                 ),
               )),
           SizedBox(height: 10.h),
           Text('أو أدخل يدوياً',
-              style: TextStyle(fontSize: 12.sp, color: AppColors.textMuted)),
+              style: TextStyle(fontSize: 12.sp, color: context.palette.textMuted)),
           SizedBox(height: 16.h),
           AppField(
             label: 'ID الشريحة',
             child: TextField(
               controller: controller.idCtrl,
-              decoration: appInputDecoration('مثال : RF-011'),
+              decoration: appInputDecoration(context, 'مثال : RF-011'),
             ),
           ),
           SizedBox(height: 20.h),
@@ -135,7 +135,7 @@ class AddOpView extends GetView<AddOpController> {
     );
   }
 
-  Widget _detailsStep() {
+  Widget _detailsStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -144,18 +144,18 @@ class AddOpView extends GetView<AddOpController> {
           Obx(() => Container(
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: AppColors.accentLight,
+                  color: context.palette.accentLight,
                   border: Border.all(color: const Color(0xFFA7F3D0)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(children: [
-                  Icon(Icons.qr_code_2, size: 18.sp, color: AppColors.emeraldFg),
+                  Icon(Icons.qr_code_2, size: 18.sp, color: context.palette.successFg),
                   SizedBox(width: 8.w),
                   Text('الشريحة: ${controller.idValue.value}',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13.sp,
-                          color: AppColors.emeraldFg)),
+                          color: context.palette.successFg)),
                 ]),
               )),
           SizedBox(height: 14.h),

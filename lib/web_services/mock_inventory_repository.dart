@@ -1,8 +1,8 @@
-import 'package:insighta/models/midicine.dart';
+import 'package:insighta/models/medicine/medicine.dart';
 import 'package:insighta/repo.dart/inventory_repository.dart';
 
-import '../models/vendor.dart';
-import '../models/medicine_log.dart';
+import '../models/vendor/vendor.dart';
+import '../models/medicine_log/medicine_log.dart';
 import 'mock_data.dart';
 
 class MockInventoryRepository implements IInventoryRepository {

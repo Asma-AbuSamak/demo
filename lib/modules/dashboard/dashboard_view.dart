@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:insighta/app_routes.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/app_card.dart';
 import 'package:insighta/widgets/sheep_svg.dart';
 
@@ -21,21 +21,21 @@ class DashboardView extends GetView<DashboardController> {
       return ListView(
         padding: EdgeInsets.all(16.w),
         children: [
-          _hero(),
+          _hero(context),
           SizedBox(height: 12.h),
           Row(children: [
-            Expanded(child: _sickCard()),
+            Expanded(child: _sickCard(context)),
             SizedBox(width: 12.w),
-            Expanded(child: _pregnantCard()),
+            Expanded(child: _pregnantCard(context)),
           ]),
           SizedBox(height: 12.h),
           Row(children: [
-            Expanded(child: _deathsCard()),
+            Expanded(child: _deathsCard(context)),
             SizedBox(width: 12.w),
-            Expanded(child: _tradingCard()),
+            Expanded(child: _tradingCard(context)),
           ]),
           SizedBox(height: 12.h),
-          _vaccines(),
+          _vaccines(context),
           SizedBox(height: 80.h),
         ],
       );
@@ -43,10 +43,10 @@ class DashboardView extends GetView<DashboardController> {
   }
 
   // البطاقة الكبيرة: الإجمالي + إناث/ذكور
-  Widget _hero() {
+  Widget _hero(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(20.w),
-      decoration: cardDecoration(),
+      decoration: cardDecoration(context),
       child: Column(
         children: [
           Row(
@@ -59,7 +59,7 @@ class DashboardView extends GetView<DashboardController> {
                     Text('إجمالي الحلال',
                         style: TextStyle(
                             fontSize: 11.sp,
-                            color: AppColors.textMuted,
+                            color: context.palette.textMuted,
                             fontWeight: FontWeight.w500)),
                     SizedBox(height: 4.h),
                     Text('${controller.total}',
@@ -67,11 +67,11 @@ class DashboardView extends GetView<DashboardController> {
                             fontSize: 56.sp,
                             fontWeight: FontWeight.w900,
                             height: 1,
-                            color: AppColors.textMain)),
+                            color: context.palette.textMain)),
                     SizedBox(height: 4.h),
                     Text('رأس في المزرعة',
                         style: TextStyle(
-                            fontSize: 13.sp, color: AppColors.textMuted)),
+                            fontSize: 13.sp, color: context.palette.textMuted)),
                   ],
                 ),
               ),
@@ -80,27 +80,27 @@ class DashboardView extends GetView<DashboardController> {
           ),
           Padding(
             padding: EdgeInsets.only(top: 16.h),
-            child: Divider(color: AppColors.border, height: 1),
+            child: Divider(color: context.palette.border, height: 1),
           ),
           SizedBox(height: 12.h),
           Row(children: [
-            Expanded(child: _genderCol(controller.females, 'إناث', false)),
-            Container(width: 1, height: 36.h, color: AppColors.border),
-            Expanded(child: _genderCol(controller.males, 'ذكور', true)),
+            Expanded(child: _genderCol(controller.females, 'إناث', false, context)),
+            Container(width: 1, height: 36.h, color: context.palette.border),
+            Expanded(child: _genderCol(controller.males, 'ذكور', true, context)),
           ]),
         ],
       ),
     );
   }
 
-  Widget _genderCol(int value, String label, bool male) {
+  Widget _genderCol(int value, String label, bool male, BuildContext context) {
     return Column(
       children: [
         Text('$value',
             style: TextStyle(
                 fontSize: 22.sp,
                 fontWeight: FontWeight.w900,
-                color: AppColors.textMain)),
+                color: context.palette.textMain)),
         SizedBox(height: 2.h),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -108,54 +108,57 @@ class DashboardView extends GetView<DashboardController> {
             SheepSVG(male: male, size: 14),
             SizedBox(width: 4.w),
             Text(label,
-                style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
           ],
         ),
       ],
     );
   }
 
-  Widget _sickCard() {
+  Widget _sickCard(BuildContext context) {
     final n = controller.sick.length;
     final active = n > 0;
     return _statCard(
       value: '$n',
-      valueColor: active ? AppColors.redFg : AppColors.textMuted,
+      valueColor: active ? context.palette.dangerFg : context.palette.textMuted,
       label: 'مريض',
-      accent: active ? AppColors.destructive : null,
-      trailing: active ? _detailsLink('التفاصيل', AppColors.redFg) : null,
+      accent: active ? context.colors.error : null,
+      trailing: active ? _detailsLink('التفاصيل', context.palette.dangerFg) : null,
       onTap: active
           ? () => Get.toNamed(Routes.statusList, arguments: AnimalStatus.sick)
           : null,
+      context: context,
     );
   }
 
-  Widget _pregnantCard() {
+  Widget _pregnantCard(BuildContext context) {
     final n = controller.pregnant.length;
     final active = n > 0;
     return _statCard(
       value: '$n',
-      valueColor: active ? AppColors.yellowFg : AppColors.textMuted,
+      valueColor: active ? context.palette.warningFg : context.palette.textMuted,
       label: 'حامل',
       accent: active ? const Color(0xFFEAB308) : null,
-      trailing: active ? _detailsLink('التفاصيل', AppColors.yellowFg) : null,
+      trailing: active ? _detailsLink('التفاصيل', context.palette.warningFg) : null,
       onTap: active
           ? () => Get.toNamed(Routes.statusList, arguments: AnimalStatus.pregnant)
           : null,
+      context: context,
     );
   }
 
-  Widget _deathsCard() {
+  Widget _deathsCard(BuildContext context) {
     return _statCard(
       value: '${controller.deathsCount.value}',
       valueColor: const Color(0xFF374151),
       label: 'وفيات',
-      trailing: _detailsLink('الإحصائيات', AppColors.textMuted),
+      trailing: _detailsLink('الإحصائيات', context.palette.textMuted),
       onTap: () => Get.toNamed(Routes.deletedStats),
+      context: context,
     );
   }
 
-  Widget _tradingCard() {
+  Widget _tradingCard(BuildContext context) {
     return _statCard(
       customValue: Row(
         crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -165,36 +168,38 @@ class DashboardView extends GetView<DashboardController> {
               style: TextStyle(
                   fontSize: 22.sp,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.primaryDark)),
+                  color: context.palette.primaryStrong)),
           Text(' / ',
-              style: TextStyle(fontSize: 13.sp, color: AppColors.textMuted)),
+              style: TextStyle(fontSize: 13.sp, color: context.palette.textMuted)),
           Text('${controller.totalSold}',
               style: TextStyle(
                   fontSize: 22.sp,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.blueFg)),
+                  color: context.palette.infoFg)),
         ],
       ),
       label: 'شراء / بيع',
-      trailing: _detailsLink('الأرباح', AppColors.textMuted),
+      trailing: _detailsLink('الأرباح', context.palette.textMuted),
       onTap: () => Get.toNamed(Routes.tradingStats),
+      context: context,
     );
   }
 
   Widget _statCard({
     String? value,
     Widget? customValue,
-    Color valueColor = AppColors.textMain,
+    Color? valueColor,
     required String label,
     Color? accent,
     Widget? trailing,
     VoidCallback? onTap,
+    required BuildContext context,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(16.w),
-        decoration: cardDecoration().copyWith(
+        decoration: cardDecoration(context).copyWith(
           border: accent != null
               ? Border(right: BorderSide(color: accent, width: 4))
               : null,
@@ -207,13 +212,13 @@ class DashboardView extends GetView<DashboardController> {
                     style: TextStyle(
                         fontSize: 28.sp,
                         fontWeight: FontWeight.w900,
-                        color: valueColor)),
+                        color: valueColor ?? context.palette.textMain)),
             SizedBox(height: 4.h),
             Text(label,
                 style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.textMuted)),
+                    color: context.palette.textMuted)),
             if (trailing != null) ...[SizedBox(height: 2.h), trailing],
           ],
         ),
@@ -231,9 +236,9 @@ class DashboardView extends GetView<DashboardController> {
         ],
       );
 
-  Widget _vaccines() {
+  Widget _vaccines(BuildContext context) {
     return Container(
-      decoration: cardDecoration(),
+      decoration: cardDecoration(context),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
@@ -248,10 +253,10 @@ class DashboardView extends GetView<DashboardController> {
                     width: 40.w,
                     height: 40.w,
                     decoration: BoxDecoration(
-                        color: AppColors.blueBg,
+                        color: context.palette.infoBg,
                         borderRadius: BorderRadius.circular(12)),
                     child: Icon(Icons.shield_outlined,
-                        color: AppColors.blueFg, size: 20.sp),
+                        color: context.palette.infoFg, size: 20.sp),
                   ),
                   SizedBox(width: 12.w),
                   Expanded(
@@ -263,7 +268,7 @@ class DashboardView extends GetView<DashboardController> {
                                 fontWeight: FontWeight.bold, fontSize: 13.sp)),
                         Text('${controller.vaccineStats.length} نوع تطعيم مسجّل',
                             style: TextStyle(
-                                fontSize: 11.sp, color: AppColors.textMuted)),
+                                fontSize: 11.sp, color: context.palette.textMuted)),
                       ],
                     ),
                   ),
@@ -271,7 +276,7 @@ class DashboardView extends GetView<DashboardController> {
                       controller.vaccineExpanded.value
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
-                      color: AppColors.textMuted),
+                      color: context.palette.textMuted),
                 ],
               ),
             ),
@@ -281,7 +286,7 @@ class DashboardView extends GetView<DashboardController> {
               padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.w),
               child: Column(
                 children: controller.vaccineStats
-                    .map((vs) => _vaccineRow(vs))
+                    .map((vs) => _vaccineRow(vs, context))
                     .toList(),
               ),
             ),
@@ -290,12 +295,12 @@ class DashboardView extends GetView<DashboardController> {
     );
   }
 
-  Widget _vaccineRow(VaccineStat vs) {
+  Widget _vaccineRow(VaccineStat vs, BuildContext context) {
     return Container(
       margin: EdgeInsets.only(top: 8.h),
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
-          color: AppColors.pageBg, borderRadius: BorderRadius.circular(12)),
+          color: context.palette.pageBg, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -303,9 +308,9 @@ class DashboardView extends GetView<DashboardController> {
               style: TextStyle(fontSize: 11.sp, fontWeight: FontWeight.bold)),
           SizedBox(height: 8.h),
           Row(children: [
-            Expanded(child: _vaccinePill('${vs.count}', 'أخذه', AppColors.emeraldBg, AppColors.emeraldFg)),
+            Expanded(child: _vaccinePill('${vs.count}', 'أخذه', context.palette.successBg, context.palette.successFg)),
             SizedBox(width: 10.w),
-            Expanded(child: _vaccinePill('${vs.notCount}', 'لم يأخذه', AppColors.border, AppColors.textMuted)),
+            Expanded(child: _vaccinePill('${vs.notCount}', 'لم يأخذه', context.palette.border, context.palette.textMuted)),
           ]),
         ],
       ),

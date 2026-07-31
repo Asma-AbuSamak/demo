@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:insighta/styles/app_colors.dart';
 
 class OpItem {
   final String label;
@@ -14,7 +13,7 @@ class OpItem {
 class FieldOpsController extends GetxController {
   final List<OpItem> ops = const [
     OpItem('تسجيل وزن', 'قياس وتسجيل وزن خروف', Icons.scale,
-        [Color(0xFF34D399), AppColors.teal600], '/op/weight'),
+        [Color(0xFF34D399), Color(0xFF0D9488)], '/op/weight'),
     OpItem('تسجيل علاج / فحص', 'تطعيمات، أدوية، فحوصات دورية',
         Icons.medical_services_outlined,
         [Color(0xFF38BDF8), Color(0xFF2563EB)], '/op/medical'),

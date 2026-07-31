@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/models/breeding_record.dart';
-import 'package:insighta/models/med_record.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/models/breeding_record/breeding_record.dart';
+import 'package:insighta/models/med_record/med_record.dart';
 import 'package:insighta/modules/dashboard/dashboard_controller.dart';
 import 'package:insighta/modules/flock/controllers/flock_controller.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
@@ -52,7 +52,7 @@ class BirthBreedingController extends GetxController {
   final maleVal = ''.obs;
   final female = Rxn<Animal>();
   final male = Rxn<Animal>();
-  final breedDate = AppDate.todayIso().obs;
+  final breedDate = RxInt(AppDate.todayEpoch());
   final breedStep = BreedStep.form.obs;
   final scanningFemale = false.obs;
   final scanningMale = false.obs;
@@ -120,7 +120,7 @@ class BirthBreedingController extends GetxController {
     if (br != null) {
       fatherCtrl.text = br.maleId; // يملأ الأب تلقائياً
       autoFatherMsg.value =
-          'الأب: ${br.maleId} · من سجل تزاوج تاريخ ${AppDate.formatDate(br.date)}';
+          'الأب: ${br.maleId} · من سجل تزاوج تاريخ ${AppDate.formatEpoch(br.dateUtc)}';
     } else {
       autoFatherMsg.value = null;
     }
@@ -172,10 +172,11 @@ class BirthBreedingController extends GetxController {
     await _medRepo.addMedRecord(MedRecord(
       id: 'm${DateTime.now().millisecondsSinceEpoch}',
       animalId: m.id,
-      date: AppDate.todayIso(),
+      dateUtc: AppDate.todayEpoch(),
       type: MedType.checkup,
       description: 'ولادة - مولود جديد $id',
-      synced: false,
+      createdAtUtc: AppDate.nowEpoch(),
+      updatedAtUtc: AppDate.nowEpoch(),
     ));
 
     _refreshOthers();
@@ -226,30 +227,34 @@ class BirthBreedingController extends GetxController {
       id: 'br${DateTime.now().millisecondsSinceEpoch}',
       femaleId: f.id,
       maleId: m.id,
-      date: breedDate.value,
+      dateUtc: breedDate.value,
       status: BreedingStatus.active,
+      createdAtUtc: AppDate.nowEpoch(),
+      updatedAtUtc: AppDate.nowEpoch(),
     ));
 
     // 2) حالة الأنثى → حامل
     await _animalRepo.update(f.copyWith(status: AnimalStatus.pregnant));
 
     // 3) توثيق التزاوج في السجل الطبي للطرفين
-    final dateFmt = AppDate.formatDate(breedDate.value);
+    final dateFmt = AppDate.formatEpoch(breedDate.value);
     await _medRepo.addMedRecord(MedRecord(
       id: 'mf${DateTime.now().millisecondsSinceEpoch}',
       animalId: f.id,
-      date: breedDate.value,
+      dateUtc: breedDate.value,
       type: MedType.checkup,
       description: 'تزاوج مع ${m.id} · بداية حمل ($dateFmt)',
-      synced: false,
+      createdAtUtc: AppDate.nowEpoch(),
+      updatedAtUtc: AppDate.nowEpoch(),
     ));
     await _medRepo.addMedRecord(MedRecord(
       id: 'mm${DateTime.now().millisecondsSinceEpoch}',
       animalId: m.id,
-      date: breedDate.value,
+      dateUtc: breedDate.value,
       type: MedType.checkup,
       description: 'تزاوج مع ${f.id} ($dateFmt)',
-      synced: false,
+      createdAtUtc: AppDate.nowEpoch(),
+      updatedAtUtc: AppDate.nowEpoch(),
     ));
 
     _refreshOthers();

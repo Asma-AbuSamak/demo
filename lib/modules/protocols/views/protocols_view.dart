@@ -3,11 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:insighta/app_routes.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/utilities/date_utils.dart';
 import 'package:insighta/widgets/app_card.dart';
 import 'package:insighta/widgets/back_header.dart';
-import 'package:insighta/models/vaccine_protocol.dart';
+import 'package:insighta/models/vaccine_protocol/vaccine_protocol.dart';
 import '../controllers/protocols_controller.dart';
 
 class ProtocolsView extends GetView<ProtocolsController> {
@@ -16,7 +16,7 @@ class ProtocolsView extends GetView<ProtocolsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           const BackHeader(
@@ -34,14 +34,14 @@ class ProtocolsView extends GetView<ProtocolsController> {
                         const Color(0xFFEA580C), ProtocolType.treatment)),
                     SizedBox(width: 10.w),
                     Expanded(child: _addBtn('+  إضافة مطعوم',
-                        AppColors.blueFg, ProtocolType.vaccine)),
+                        context.palette.infoFg, ProtocolType.vaccine)),
                   ]),
                   SizedBox(height: 16.h),
-                  _sectionLabel('المطاعيم'),
-                  ...controller.vaccines.map(_vaccineCard),
+                  _sectionLabel('المطاعيم', context),
+                  ...controller.vaccines.map((p) => _vaccineCard(p, context)),
                   SizedBox(height: 16.h),
-                  _sectionLabel('العلاجات'),
-                  ...controller.treatments.map(_treatmentCard),
+                  _sectionLabel('العلاجات', context),
+                  ...controller.treatments.map((p) => _treatmentCard(p, context)),
                 ],
               );
             }),
@@ -68,7 +68,7 @@ class ProtocolsView extends GetView<ProtocolsController> {
     );
   }
 
-  Widget _sectionLabel(String t) => Padding(
+  Widget _sectionLabel(String t, BuildContext context) => Padding(
         padding: EdgeInsets.only(right: 4.w, bottom: 8.h),
         child: Align(
           alignment: Alignment.centerRight,
@@ -76,26 +76,28 @@ class ProtocolsView extends GetView<ProtocolsController> {
               style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted)),
+                  color: context.palette.textMuted)),
         ),
       );
 
-  Widget _vaccineCard(VaccineProtocol p) {
+  Widget _vaccineCard(VaccineProtocol p, BuildContext context) {
     final overdue = controller.isOverdue(p);
     return _card(
       p: p,
+      context: context,
       badges: [
-        _pill('مطعوم', AppColors.blueBg, AppColors.blueFg),
-        if (overdue) _pill('متأخر', AppColors.redBg, AppColors.redFg),
+        _pill('مطعوم', context.palette.infoBg, context.palette.infoFg),
+        if (overdue) _pill('متأخر', context.palette.dangerBg, context.palette.dangerFg),
       ],
       subtitle:
-          '${p.schedule ?? ""} · الجرعة القادمة ${p.nextDate != null && p.nextDate!.isNotEmpty ? AppDate.formatDate(p.nextDate!) : "—"}',
+          '${p.schedule ?? ""} · الجرعة القادمة ${p.nextDateUtc != null ? AppDate.formatEpoch(p.nextDateUtc!) : "—"}',
     );
   }
 
-  Widget _treatmentCard(VaccineProtocol p) {
+  Widget _treatmentCard(VaccineProtocol p, BuildContext context) {
     return _card(
       p: p,
+      context: context,
       badges: [_pill('علاج', const Color(0xFFFFEDD5), const Color(0xFFC2410C))],
       subtitle: '${p.diseaseType ?? ""} · ${p.dosageInterval ?? ""}',
     );
@@ -105,6 +107,7 @@ class ProtocolsView extends GetView<ProtocolsController> {
     required VaccineProtocol p,
     required List<Widget> badges,
     required String subtitle,
+    required BuildContext context,
   }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 10.h),
@@ -112,7 +115,7 @@ class ProtocolsView extends GetView<ProtocolsController> {
         onTap: () => Get.toNamed(Routes.protocolDetail, arguments: p.id),
         child: Container(
           padding: EdgeInsets.all(14.w),
-          decoration: cardDecoration(),
+          decoration: cardDecoration(context),
           child: Row(
             children: [
               Icon(Icons.chevron_left, size: 18.sp, color: const Color(0xFFD1D5DB)),
@@ -134,7 +137,7 @@ class ProtocolsView extends GetView<ProtocolsController> {
                     SizedBox(height: 2.h),
                     Text(subtitle,
                         style: TextStyle(
-                            fontSize: 11.sp, color: AppColors.textMuted)),
+                            fontSize: 11.sp, color: context.palette.textMuted)),
                   ],
                 ),
               ),

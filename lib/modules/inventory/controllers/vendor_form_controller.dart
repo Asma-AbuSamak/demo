@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/models/vendor.dart';
+import 'package:insighta/models/vendor/vendor.dart';
 import 'package:insighta/repo.dart/inventory_repository.dart';
+import 'package:insighta/utilities/date_utils.dart';
 import 'inventory_controller.dart';
 
 /// شاشة واحدة تخدم «إضافة مورد» و«تعديل مورد».
@@ -16,6 +17,7 @@ class VendorFormController extends GetxController {
   final phoneCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final nameVal = ''.obs;
+  int? _existingCreatedAtUtc;
 
   bool get isEdit => vendorId != null;
 
@@ -46,18 +48,22 @@ class VendorFormController extends GetxController {
       specialtyCtrl.text = v.specialty;
       phoneCtrl.text = v.phone;
       addressCtrl.text = v.address;
+      _existingCreatedAtUtc = v.createdAtUtc;
     }
   }
 
   bool get canSave => nameVal.value.trim().isNotEmpty;
 
   Future<void> save() async {
+    final now = AppDate.nowEpoch();
     final v = Vendor(
       id: vendorId ?? 'v${DateTime.now().millisecondsSinceEpoch}',
       name: nameCtrl.text.trim(),
       specialty: specialtyCtrl.text.trim(),
       phone: phoneCtrl.text.trim(),
       address: addressCtrl.text.trim(),
+      createdAtUtc: _existingCreatedAtUtc ?? now,
+      updatedAtUtc: now,
     );
     if (isEdit) {
       await _repo.updateVendor(v);

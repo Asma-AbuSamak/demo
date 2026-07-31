@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:insighta/styles/theme_x.dart';
 
-/// نمط البطاقة البيضاء الموحّد 
-///  هو الشكل البصري الموحّد لأي "صندوق محتوى" بالتطبيق كله
-/// برجع BoxDecoration
-BoxDecoration cardDecoration({Color? color, BorderRadius? radius, Border? border}) =>
+BoxDecoration cardDecoration(BuildContext context, {Color? color, BorderRadius? radius, Border? border}) =>
     BoxDecoration(
-      color: color ?? Colors.white,
+      color: color ?? context.palette.cardBg,
       borderRadius: radius ?? BorderRadius.circular(20),
       border: border,
       boxShadow: [

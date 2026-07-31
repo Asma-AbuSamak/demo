@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:insighta/utilities/date_utils.dart';
-import 'package:insighta/models/midicine.dart';
-import 'package:insighta/models/vendor.dart';
+import 'package:insighta/models/medicine/medicine.dart';
+import 'package:insighta/models/vendor/vendor.dart';
 import 'package:insighta/repo.dart/inventory_repository.dart';
 
 class InventoryController extends GetxController {
@@ -25,9 +25,9 @@ class InventoryController extends GetxController {
     isLoading.value = false;
   }
 
-  bool isExpired(Medicine m) => AppDate.isExpired(m.expiryDate);
+  bool isExpired(Medicine m) => AppDate.isExpiredEpoch(m.expiryDateUtc);
   bool isSoon(Medicine m) =>
-      !AppDate.isExpired(m.expiryDate) && AppDate.isExpiringSoon(m.expiryDate);
+      !AppDate.isExpiredEpoch(m.expiryDateUtc) && AppDate.isExpiringSoonEpoch(m.expiryDateUtc);
 
   int get expiredCount => medicines.where(isExpired).length;
   int get soonCount => medicines.where(isSoon).length;

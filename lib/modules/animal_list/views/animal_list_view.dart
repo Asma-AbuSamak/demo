@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/app_constants.dart';
 import 'package:insighta/widgets/app_card.dart';
 import 'package:insighta/widgets/back_header.dart';
 import 'package:insighta/widgets/sheep_svg.dart';
-import 'package:insighta/models/animal.dart';
+import 'package:insighta/models/animal/animal.dart';
 import '../controllers/animal_list_controller.dart';
 
 class AnimalListView extends GetView<AnimalListController> {
@@ -16,7 +16,7 @@ class AnimalListView extends GetView<AnimalListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           Obx(() => BackHeader(
@@ -34,11 +34,11 @@ class AnimalListView extends GetView<AnimalListController> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.check_circle_outline,
-                          size: 48.sp, color: AppColors.primary),
+                          size: 48.sp, color: context.colors.primary),
                       SizedBox(height: 8.h),
-                      Text('لا يوجد خرفان في هذه القائمة 🎉',
+                      Text('لا يوجد خرفان في هذه القائمة ',
                           style: TextStyle(
-                              fontSize: 14.sp, color: AppColors.textMuted)),
+                              fontSize: 14.sp, color: context.palette.textMuted)),
                     ],
                   ),
                 );
@@ -46,21 +46,21 @@ class AnimalListView extends GetView<AnimalListController> {
               return ListView.builder(
                 padding: EdgeInsets.all(16.w),
                 itemCount: controller.animals.length,
-                itemBuilder: (_, i) => _card(controller.animals[i]),
+                itemBuilder: (_, i) => _card(controller.animals[i], context),
               );
             }),
           ),
         ],
       ),
-      floatingActionButton: Obx(() => _scanFab()),
+      floatingActionButton: Obx(() => _scanFab(context)),
     );
   }
 
-  Widget _card(Animal a) {
+  Widget _card(Animal a, BuildContext context) {
     final latest = controller.latestByAnimal[a.id];
     final subtitle = latest == null
-        ? '${a.breed} · ${a.weight.toStringAsFixed(0)} كغ'
-        : '${MedTypeView.of(latest.type).label}: ${latest.description}';
+        ? '${a.breed} · ${a.weightGrams != null ? (a.weightGrams! / 1000).toStringAsFixed(0) : '—'} كغ'
+        : '${MedTypeView.of(context, latest.type).label}: ${latest.description}';
 
     return Padding(
       padding: EdgeInsets.only(bottom: 10.h),
@@ -68,14 +68,14 @@ class AnimalListView extends GetView<AnimalListController> {
         onTap: () => controller.openProfile(a.id),
         child: Container(
           padding: EdgeInsets.all(12.w),
-          decoration: cardDecoration(),
+          decoration: cardDecoration(context),
           child: Row(
             children: [
               Column(
                 children: [
                   Icon(Icons.chevron_left, size: 18.sp, color: const Color(0xFFD1D5DB)),
                   Text('السجل الطبي',
-                      style: TextStyle(fontSize: 10.sp, color: AppColors.primaryDark)),
+                      style: TextStyle(fontSize: 10.sp, color: context.palette.primaryStrong)),
                 ],
               ),
               SizedBox(width: 10.w),
@@ -89,7 +89,7 @@ class AnimalListView extends GetView<AnimalListController> {
                     Text(subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                        style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
                   ],
                 ),
               ),
@@ -98,7 +98,7 @@ class AnimalListView extends GetView<AnimalListController> {
                 width: 44.w,
                 height: 44.w,
                 decoration: BoxDecoration(
-                    color: AppColors.accentLight,
+                    color: context.palette.accentLight,
                     borderRadius: BorderRadius.circular(12)),
                 child: Center(child: SheepSVG(male: a.gender == Gender.male, size: 32)),
               ),
@@ -109,11 +109,11 @@ class AnimalListView extends GetView<AnimalListController> {
     );
   }
 
-  Widget _scanFab() {
+  Widget _scanFab(BuildContext context) {
     final scanning = controller.scanning.value;
     return Container(
       decoration: BoxDecoration(
-        gradient: AppColors.headerGradient,
+        gradient: context.palette.headerGradient,
         shape: BoxShape.circle,
         boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 12)],
       ),

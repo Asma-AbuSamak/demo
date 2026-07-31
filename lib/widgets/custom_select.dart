@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'app_field.dart';
 
 /// قائمة منسدلة مع خيار "+ إضافة جديد" وإدخال نصي مضمّن.
@@ -49,8 +49,8 @@ class _CustomSelectState extends State<CustomSelect> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       decoration: BoxDecoration(
-        color: AppColors.pageBg,
-        border: Border.all(color: AppColors.border),
+        color: context.palette.pageBg,
+        border: Border.all(color: context.palette.border),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonHideUnderline(
@@ -61,10 +61,10 @@ class _CustomSelectState extends State<CustomSelect> {
           items: [
             ...items.map((o) => DropdownMenuItem(value: o, child: Text(o))),
             if (widget.onAddCustom != null)
-              const DropdownMenuItem(
+              DropdownMenuItem(
                 value: '__add',
                 child: Text('+ إضافة جديد',
-                    style: TextStyle(color: AppColors.primaryDark)),
+                    style: TextStyle(color: context.palette.primaryStrong)),
               ),
           ],
           onChanged: (v) {
@@ -86,11 +86,11 @@ class _CustomSelectState extends State<CustomSelect> {
           child: TextField(
             controller: _ctrl,
             autofocus: true,
-            decoration: appInputDecoration('اكتب هنا...'),
+            decoration: appInputDecoration(context, 'اكتب هنا...'),
           ),
         ),
         SizedBox(width: 8.w),
-        _sqBtn(Icons.check, AppColors.primaryDark, () {
+        _sqBtn(Icons.check, context.palette.primaryStrong, () {
           final t = _ctrl.text.trim();
           if (t.isNotEmpty) {
             widget.onAddCustom?.call(t);
@@ -100,10 +100,10 @@ class _CustomSelectState extends State<CustomSelect> {
           _ctrl.clear();
         }),
         SizedBox(width: 6.w),
-        _sqBtn(Icons.close, AppColors.border, () {
+        _sqBtn(Icons.close, context.palette.border, () {
           setState(() => _showInput = false);
           _ctrl.clear();
-        }, iconColor: AppColors.textMuted),
+        }, iconColor: context.palette.textMuted),
       ],
     );
   }

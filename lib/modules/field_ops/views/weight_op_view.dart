@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/utilities/date_utils.dart';
 import 'package:insighta/widgets/animal_badge.dart';
 import 'package:insighta/widgets/app_card.dart';
@@ -10,7 +10,7 @@ import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/back_header.dart';
 import 'package:insighta/widgets/saved_overlay.dart';
 import 'package:insighta/widgets/scan_id_input.dart';
-import 'package:insighta/models/weight_record.dart';
+import 'package:insighta/models/weight_record/weight_record.dart';
 import '../controllers/weight_op_controller.dart';
 
 class WeightOpView extends GetView<WeightOpController> {
@@ -19,7 +19,7 @@ class WeightOpView extends GetView<WeightOpController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           const BackHeader(title: 'تسجيل وزن'),
@@ -27,9 +27,9 @@ class WeightOpView extends GetView<WeightOpController> {
             child: Obx(() {
               switch (controller.step.value) {
                 case WeightStep.scanId:
-                  return _scanStep();
+                  return _scanStep(context);
                 case WeightStep.form:
-                  return _formStep();
+                  return _formStep(context);
                 case WeightStep.saved:
                   return const SavedOverlay(message: 'تم تسجيل الوزن بنجاح');
               }
@@ -41,7 +41,7 @@ class WeightOpView extends GetView<WeightOpController> {
   }
 
   // ── الخطوة 1: إدخال/مسح الـ ID ──
-  Widget _scanStep() {
+  Widget _scanStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -57,12 +57,13 @@ class WeightOpView extends GetView<WeightOpController> {
                 label: 'بحث',
                 enabled: controller.canSearch,
                 onTap: controller.search,
+                context: context,
               )),
           Obx(() => controller.notFound.value
               ? Padding(
                   padding: EdgeInsets.only(top: 12.h),
                   child: Text('لا يوجد خروف بهذا الـ ID',
-                      style: TextStyle(color: AppColors.redFg, fontSize: 12.sp)),
+                      style: TextStyle(color: context.palette.dangerFg, fontSize: 12.sp)),
                 )
               : const SizedBox.shrink()),
         ],
@@ -71,7 +72,7 @@ class WeightOpView extends GetView<WeightOpController> {
   }
 
   // ── الخطوة 2: الفورم (البادج + آخر الأوزان + الوزن الجديد) ──
-  Widget _formStep() {
+  Widget _formStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -79,16 +80,16 @@ class WeightOpView extends GetView<WeightOpController> {
         children: [
           AnimalBadge(animal: controller.animal.value!),
           SizedBox(height: 14.h),
-          _lastWeightsCard(),
+          _lastWeightsCard(context),
           SizedBox(height: 16.h),
           AppField(
             label: 'الوزن الجديد (كغ)',
             child: TextField(
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               onChanged: (v) => controller.weightValue.value = v,
-              decoration: appInputDecoration('مثال: 47.5').copyWith(
+              decoration: appInputDecoration(context, 'مثال: 47.5').copyWith(
                 suffixText: 'كغ',
-                suffixStyle: TextStyle(color: AppColors.textMuted, fontSize: 12.sp),
+                suffixStyle: TextStyle(color: context.palette.textMuted, fontSize: 12.sp),
               ),
             ),
           ),
@@ -97,16 +98,17 @@ class WeightOpView extends GetView<WeightOpController> {
                 label: '✓  حفظ الوزن',
                 enabled: controller.canSave,
                 onTap: controller.save,
+                context: context,
               )),
         ],
       ),
     );
   }
 
-  Widget _lastWeightsCard() {
+  Widget _lastWeightsCard(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(14.w),
-      decoration: cardDecoration(),
+      decoration: cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -116,22 +118,22 @@ class WeightOpView extends GetView<WeightOpController> {
                 style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textMuted)),
+                    color: context.palette.textMuted)),
           ),
           if (controller.lastWeights.isEmpty)
             Padding(
               padding: EdgeInsets.symmetric(vertical: 10.h),
               child: Text('لا توجد سجلات وزن سابقة',
-                  style: TextStyle(fontSize: 12.sp, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 12.sp, color: context.palette.textMuted)),
             )
           else
-            ...controller.lastWeights.map(_weightRow),
+            ...controller.lastWeights.map((w) => _weightRow(w, context)),
         ],
       ),
     );
   }
 
-  Widget _weightRow(WeightRecord w) {
+  Widget _weightRow(WeightRecord w, BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(top: 10.h),
       child: Row(
@@ -139,14 +141,14 @@ class WeightOpView extends GetView<WeightOpController> {
           Text('${w.weight.toStringAsFixed(0)} كغ',
               style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w900)),
           const Spacer(),
-          Text(AppDate.formatDate(w.date),
-              style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+          Text(AppDate.formatEpoch(w.dateUtc),
+              style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
           SizedBox(width: 8.w),
           Container(
             width: 8.w,
             height: 8.w,
             decoration: BoxDecoration(
-                color: w.synced ? AppColors.primary : AppColors.amber,
+                color: w.syncStatus == 'synced' ? context.colors.primary : context.palette.brandAccent,
                 shape: BoxShape.circle),
           ),
         ],
@@ -158,13 +160,14 @@ class WeightOpView extends GetView<WeightOpController> {
     required String label,
     required bool enabled,
     required VoidCallback onTap,
+    required BuildContext context,
   }) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: enabled ? onTap : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryDark,
+          backgroundColor: context.palette.primaryStrong,
           disabledBackgroundColor: const Color(0xFF9DE0C6), // أخضر فاتح (معطّل)
           padding: EdgeInsets.symmetric(vertical: 14.h),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

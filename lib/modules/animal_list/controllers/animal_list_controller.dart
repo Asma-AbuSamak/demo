@@ -1,15 +1,14 @@
 import 'package:get/get.dart';
 
 import 'package:insighta/app_routes.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/models/med_record.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/models/med_record/med_record.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
 import 'package:insighta/repo.dart/medical_repository.dart';
 import 'package:insighta/web_services/scanner_service.dart';
 import '../../flock/controllers/profile_args.dart';
 
 /// قائمة عامة تعرض الحيوانات حسب حالة تُمرّر إليها (مريض / حامل / ...).
-/// نفس الشاشة تخدم أكثر من حالة — بدل تكرار الكود (مبدأ DRY).
 class AnimalListController extends GetxController {
   final IAnimalRepository _animalRepo = Get.find<IAnimalRepository>();
   final IMedicalRepository _medRepo = Get.find<IMedicalRepository>();
@@ -61,7 +60,7 @@ class AnimalListController extends GetxController {
     final map = <String, MedRecord>{};
     for (final r in meds) {
       final cur = map[r.animalId];
-      if (cur == null || r.date.compareTo(cur.date) > 0) map[r.animalId] = r;
+      if (cur == null || r.dateUtc.compareTo(cur.dateUtc) > 0) map[r.animalId] = r;
     }
     latestByAnimal.value = map;
     isLoading.value = false;

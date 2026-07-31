@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:insighta/models/midicine.dart';
-import 'package:insighta/models/medicine_log.dart';
-import 'package:insighta/models/vendor.dart';
+import 'package:insighta/models/medicine/medicine.dart';
+import 'package:insighta/models/medicine_log/medicine_log.dart';
+import 'package:insighta/models/vendor/vendor.dart';
 import 'package:insighta/repo.dart/inventory_repository.dart';
 
 class InventoryIndexController extends GetxController {
@@ -28,7 +28,7 @@ class InventoryIndexController extends GetxController {
     }
     final logs = await _repo.getLogs();
     final adds = logs.where((l) => l.type == MedicineLogType.add).toList();
-    adds.sort((a, b) => b.date.compareTo(a.date));
+    adds.sort((a, b) => b.dateUtc.compareTo(a.dateUtc));
     addLogs.value = adds;
     isLoading.value = false;
   }

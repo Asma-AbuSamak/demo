@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/app_constants.dart';
 import 'package:insighta/utilities/date_utils.dart';
 import 'package:insighta/widgets/app_card.dart';
 import 'package:insighta/widgets/sheep_svg.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/models/med_record.dart';
-import 'package:insighta/models/weight_record.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/models/med_record/med_record.dart';
+import 'package:insighta/models/weight_record/weight_record.dart';
 import '../controllers/animal_profile_controller.dart';
 
 class AnimalProfileView extends GetView<AnimalProfileController> {
@@ -18,7 +18,7 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Obx(() {
         final a = controller.animal.value;
         if (controller.isLoading.value && a == null) {
@@ -29,17 +29,17 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
         }
         return Column(
           children: [
-            _header(a),
-            _tabBar(),
+            _header(a, context),
+            _tabBar(context),
             Expanded(
               child: Obx(() {
                 switch (controller.currentTab.value) {
                   case 0:
-                    return _infoTab(a);
+                    return _infoTab(a, context);
                   case 1:
-                    return _medicalTab(a);
+                    return _medicalTab(a, context);
                   default:
-                    return _familyTab(a);
+                    return _familyTab(a, context);
                 }
               }),
             ),
@@ -49,12 +49,12 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
     );
   }
 
-  Widget _header(Animal a) {
-    final sv = StatusView.of(a.status);
+  Widget _header(Animal a, BuildContext context) {
+    final sv = StatusView.of(context, a.status);
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(top: 40.h, bottom: 18.h, left: 16.w, right: 16.w),
-      decoration: const BoxDecoration(gradient: AppColors.headerGradient),
+      decoration: BoxDecoration(gradient: context.palette.headerGradient),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -106,18 +106,18 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
     );
   }
 
-  Widget _tabBar() {
+  Widget _tabBar(BuildContext context) {
     return Container(
       color: Colors.white,
       child: Row(children: [
-        _tab('البيانات', 0),
-        _tab('السجل الطبي', 1),
-        _tab('شجرة العائلة', 2),
+        _tab('البيانات', 0, context),
+        _tab('السجل الطبي', 1, context),
+        _tab('شجرة العائلة', 2, context),
       ]),
     );
   }
 
-  Widget _tab(String label, int i) {
+  Widget _tab(String label, int i, BuildContext context) {
     final active = controller.currentTab.value == i;
     return Expanded(
       child: GestureDetector(
@@ -127,7 +127,7 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                  color: active ? AppColors.primary : Colors.transparent, width: 2.5),
+                  color: active ? context.colors.primary : Colors.transparent, width: 2.5),
             ),
           ),
           child: Text(label,
@@ -135,57 +135,57 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
               style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
-                  color: active ? AppColors.emeraldFg : AppColors.textMuted)),
+                  color: active ? context.palette.successFg : context.palette.textMuted)),
         ),
       ),
     );
   }
 
   // ── تبويب البيانات ──
-  Widget _infoTab(Animal a) {
+  Widget _infoTab(Animal a, BuildContext context) {
     return ListView(
       padding: EdgeInsets.all(16.w),
       children: [
         Row(children: [
-          _infoCard('الجنس', a.gender == Gender.male ? 'ذكر' : 'أنثى'),
+          _infoCard('الجنس', a.gender == Gender.male ? 'ذكر' : 'أنثى', context),
           SizedBox(width: 10.w),
-          _infoCard('السلالة', a.breed),
+          _infoCard('السلالة', a.breed, context),
         ]),
         SizedBox(height: 10.h),
         Row(children: [
-          _infoCard('العمر', controller.ageText),
+          _infoCard('العمر', controller.ageText, context),
           SizedBox(width: 10.w),
-          _infoCard('الوزن الأخير', '${a.weight.toStringAsFixed(0)} كغ'),
+          _infoCard('الوزن الأخير', '${a.weightGrams != null ? (a.weightGrams! / 1000).toStringAsFixed(0) : '—'} كغ', context),
         ]),
         SizedBox(height: 10.h),
         Row(children: [
-          _infoCard('تاريخ الميلاد', AppDate.formatDate(a.birthDate)),
+          _infoCard('تاريخ الميلاد', a.birthDateUtc != null ? AppDate.formatEpoch(a.birthDateUtc!) : '—', context),
           SizedBox(width: 10.w),
-          _infoCard('المصدر', a.origin == Origin.born ? 'مولود' : 'مشترى'),
+          _infoCard('المصدر', a.origin == Origin.born ? 'مولود' : 'مشترى', context),
         ]),
-        if (a.origin == Origin.purchased && a.vendorName != null) ...[
+        if (a.origin == Origin.purchased && a.vendorId != null) ...[
           SizedBox(height: 10.h),
           Row(children: [
-            _infoCard('المورد', a.vendorName!),
+            _infoCard('المورد', a.vendorId!, context),
             SizedBox(width: 10.w),
-            _infoCard('سعر الشراء', a.purchasePrice != null ? '${a.purchasePrice} ر' : '—'),
+            _infoCard('سعر الشراء', a.purchasePriceMinor != null ? '${(a.purchasePriceMinor! / 100).toStringAsFixed(0)} ${a.currency}' : '—', context),
           ]),
         ],
         SizedBox(height: 14.h),
-        _weightsCard(),
+        _weightsCard(context),
       ],
     );
   }
 
-  Widget _infoCard(String label, String value) {
+  Widget _infoCard(String label, String value, BuildContext context) {
     return Expanded(
       child: Container(
         padding: EdgeInsets.all(14.w),
-        decoration: cardDecoration(),
+        decoration: cardDecoration(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(label, style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+            Text(label, style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
             SizedBox(height: 4.h),
             Text(value,
                 style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
@@ -196,10 +196,10 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
     );
   }
 
-  Widget _weightsCard() {
+  Widget _weightsCard(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(14.w),
-      decoration: cardDecoration(),
+      decoration: cardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -207,22 +207,22 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
             alignment: Alignment.centerRight,
             child: Text('آخر الأوزان',
                 style: TextStyle(
-                    fontSize: 12.sp, fontWeight: FontWeight.bold, color: AppColors.textMuted)),
+                    fontSize: 12.sp, fontWeight: FontWeight.bold, color: context.palette.textMuted)),
           ),
           if (controller.lastWeights.isEmpty)
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8.h),
               child: Text('لا توجد سجلات وزن',
-                  style: TextStyle(fontSize: 12.sp, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 12.sp, color: context.palette.textMuted)),
             )
           else
-            ...controller.lastWeights.map(_weightRow),
+            ...controller.lastWeights.map((w) => _weightRow(w, context)),
         ],
       ),
     );
   }
 
-  Widget _weightRow(WeightRecord w) {
+  Widget _weightRow(WeightRecord w, BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(top: 10.h),
       child: Row(children: [
@@ -230,11 +230,11 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
           width: 8.w,
           height: 8.w,
           decoration: BoxDecoration(
-              color: w.synced ? AppColors.primary : AppColors.amber, shape: BoxShape.circle),
+              color: w.syncStatus == 'synced' ? context.colors.primary : context.palette.brandAccent, shape: BoxShape.circle),
         ),
         SizedBox(width: 8.w),
-        Text(AppDate.formatDate(w.date),
-            style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+        Text(AppDate.formatEpoch(w.dateUtc),
+            style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
         const Spacer(),
         Text('${w.weight.toStringAsFixed(0)} كغ',
             style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w900)),
@@ -243,27 +243,27 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
   }
 
   // ── تبويب السجل الطبي ──
-  Widget _medicalTab(Animal a) {
+  Widget _medicalTab(Animal a, BuildContext context) {
     return ListView(
       padding: EdgeInsets.all(16.w),
       children: [
-        if (controller.hasAction) _actionButton(a),
-        ...controller.records.map(_recordCard),
+        if (controller.hasAction) _actionButton(a, context),
+        ...controller.records.map((r) => _recordCard(r, context)),
         if (controller.records.isEmpty)
           Padding(
             padding: EdgeInsets.only(top: 40.h),
             child: Center(
               child: Text('لا توجد سجلات طبية',
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 13.sp)),
+                  style: TextStyle(color: context.palette.textMuted, fontSize: 13.sp)),
             ),
           ),
       ],
     );
   }
 
-  Widget _actionButton(Animal a) {
+  Widget _actionButton(Animal a, BuildContext context) {
     final isSick = a.status == AnimalStatus.sick;
-    final color = isSick ? AppColors.primaryDark : AppColors.amber;
+    final color = isSick ? context.palette.primaryStrong : context.palette.brandAccent;
     final icon = isSick ? Icons.check_circle : Icons.favorite;
     final label = isSick ? 'تم الشفاء - تسجيل التعافي الآن' : 'تمت الولادة - تسجيل الولادة الآن';
     return Padding(
@@ -285,13 +285,13 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
     );
   }
 
-  Widget _recordCard(MedRecord r) {
-    final mv = MedTypeView.of(r.type);
-    final dotColor = r.synced ? AppColors.primary : AppColors.amber;
+  Widget _recordCard(MedRecord r, BuildContext context) {
+    final mv = MedTypeView.of(context, r.type);
+    final dotColor = r.syncStatus == 'synced' ? context.colors.primary : context.palette.brandAccent;
     return Container(
       margin: EdgeInsets.only(bottom: 10.h),
       padding: EdgeInsets.all(14.w),
-      decoration: cardDecoration(),
+      decoration: cardDecoration(context),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -311,13 +311,13 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
                     ]),
                   ),
                   SizedBox(width: 8.w),
-                  Text(AppDate.formatDate(r.date),
-                      style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                  Text(AppDate.formatEpoch(r.dateUtc),
+                      style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
                 ]),
                 SizedBox(height: 6.h),
                 Text(r.description,
                     style: TextStyle(
-                        fontSize: 13.sp, fontWeight: FontWeight.w600, color: AppColors.textMain)),
+                        fontSize: 13.sp, fontWeight: FontWeight.w600, color: context.palette.textMain)),
               ],
             ),
           ),
@@ -334,52 +334,52 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
   }
 
   // ── تبويب شجرة العائلة (نسخة بسيطة للـ Demo) ──
-  Widget _familyTab(Animal a) {
+  Widget _familyTab(Animal a, BuildContext context) {
     return ListView(
       padding: EdgeInsets.all(16.w),
       children: [
         SizedBox(height: 6.h),
         Center(
           child: Text('شجرة الأنساب - 3 أجيال',
-              style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+              style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
         ),
         SizedBox(height: 16.h),
         // عقدة الخروف
-        Center(child: _node('الخروف', a.id, primary: true)),
+        Center(child: _node('الخروف', a.id, context, primary: true)),
         // الوصلة
         Center(
-          child: Container(width: 2.w, height: 24.h, color: AppColors.primary),
+          child: Container(width: 2.w, height: 24.h, color: context.colors.primary),
         ),
         // الأبوان
         Row(
           children: [
-            Expanded(child: _parentNode('الأب', a.fatherId)),
+            Expanded(child: _parentNode('الأب', a.fatherId, context)),
             SizedBox(width: 12.w),
-            Expanded(child: _parentNode('الأم', a.motherId)),
+            Expanded(child: _parentNode('الأم', a.motherId, context)),
           ],
         ),
       ],
     );
   }
 
-  Widget _parentNode(String label, String? id) {
+  Widget _parentNode(String label, String? id, BuildContext context) {
     if (id == null || id.isEmpty) {
-      return _node(label, 'غير معروف', muted: true);
+      return _node(label, 'غير معروف', context, muted: true);
     }
     return GestureDetector(
       onTap: () => controller.openParent(id),
-      child: _node(label, id),
+      child: _node(label, id, context),
     );
   }
 
-  Widget _node(String label, String value, {bool primary = false, bool muted = false}) {
+  Widget _node(String label, String value, BuildContext context, {bool primary = false, bool muted = false}) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
       decoration: BoxDecoration(
-        gradient: primary ? AppColors.headerGradient : null,
+        gradient: primary ? context.palette.headerGradient : null,
         color: primary ? null : Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: primary ? null : Border.all(color: AppColors.border),
+        border: primary ? null : Border.all(color: context.palette.border),
         boxShadow: primary ? null : [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
       ),
       child: Column(
@@ -387,7 +387,7 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
           Text(label,
               style: TextStyle(
                   fontSize: 10.sp,
-                  color: primary ? Colors.white70 : AppColors.textMuted)),
+                  color: primary ? Colors.white70 : context.palette.textMuted)),
           SizedBox(height: 2.h),
           Text(value,
               style: TextStyle(
@@ -396,8 +396,8 @@ class AnimalProfileView extends GetView<AnimalProfileController> {
                   color: primary
                       ? Colors.white
                       : muted
-                          ? AppColors.textMuted
-                          : AppColors.textMain)),
+                          ? context.palette.textMuted
+                          : context.palette.textMain)),
         ],
       ),
     );

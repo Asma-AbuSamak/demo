@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:insighta/app_constants.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/utilities/date_utils.dart';
 import 'package:insighta/widgets/animalformstate.dart';
 import 'app_field.dart';
@@ -18,17 +18,17 @@ class AnimalFormFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.stretch,//لتوسيع الحقول على كامل العرض
       children: [
         AppField(
           label: 'الجنس',
           child: Obx(() => Row(children: [
                 _toggle('أنثى', form.gender.value == Gender.female,
-                    () => form.gender.value = Gender.female,
+                    () => form.gender.value = Gender.female, context,
                     leading: const SheepSVG(size: 18)),
                 SizedBox(width: 8.w),
                 _toggle('ذكر', form.gender.value == Gender.male,
-                    () => form.gender.value = Gender.male,
+                    () => form.gender.value = Gender.male, context,
                     leading: const SheepSVG(male: true, size: 18)),
               ])),
         ),
@@ -48,11 +48,11 @@ class AnimalFormFields extends StatelessWidget {
           label: 'مصدر الخروف',
           child: Obx(() => Row(children: [
                 _toggle('مولود', form.origin.value == Origin.born,
-                    () => form.origin.value = Origin.born,
+                    () => form.origin.value = Origin.born, context,
                     icon: Icons.eco_outlined),
                 SizedBox(width: 8.w),
                 _toggle('مشترى', form.origin.value == Origin.purchased,
-                    () => form.origin.value = Origin.purchased,
+                    () => form.origin.value = Origin.purchased, context,
                     icon: Icons.shopping_bag_outlined),
               ])),
         ),
@@ -60,7 +60,7 @@ class AnimalFormFields extends StatelessWidget {
 
         // القسم المتغيّر حسب المصدر
         Obx(() => form.origin.value == Origin.born
-            ? _bornBox()
+            ? _bornBox(context)
             : _purchasedBox(context)),
         SizedBox(height: 14.h),
 
@@ -82,7 +82,7 @@ class AnimalFormFields extends StatelessWidget {
             controller: TextEditingController(text: form.weight.value)
               ..selection = TextSelection.collapsed(offset: form.weight.value.length),
             onChanged: (v) => form.weight.value = v,
-            decoration: appInputDecoration('كغ'),
+            decoration: appInputDecoration(context, 'كغ'),
           ),
         ),
         SizedBox(height: 14.h),
@@ -91,11 +91,11 @@ class AnimalFormFields extends StatelessWidget {
         AppField(
           label: 'الحالة الصحية',
           child: Obx(() => Row(children: [
-                _statusBtn('بصحة جيدة', AnimalStatus.healthy),
+                _statusBtn('بصحة جيدة', AnimalStatus.healthy, context),
                 SizedBox(width: 8.w),
-                _statusBtn('مريض', AnimalStatus.sick),
+                _statusBtn('مريض', AnimalStatus.sick, context),
                 SizedBox(width: 8.w),
-                _statusBtn('حامل', AnimalStatus.pregnant),
+                _statusBtn('حامل', AnimalStatus.pregnant, context),
               ])),
         ),
         SizedBox(height: 14.h),
@@ -106,7 +106,7 @@ class AnimalFormFields extends StatelessWidget {
           child: TextField(
             maxLines: 3,
             onChanged: (v) => form.notes.value = v,
-            decoration: appInputDecoration('أي ملاحظات إضافية...'),
+            decoration: appInputDecoration(context, 'أي ملاحظات إضافية...'),
           ),
         ),
       ],
@@ -114,11 +114,11 @@ class AnimalFormFields extends StatelessWidget {
   }
 
   // بيانات الولادة (الأبوان)
-  Widget _bornBox() {
+  Widget _bornBox(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: AppColors.accentLight,
+        color: context.palette.accentLight,
         border: Border.all(color: const Color(0xFFA7F3D0)),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -131,17 +131,17 @@ class AnimalFormFields extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.emeraldFg)),
+                    color: context.palette.successFg)),
           ),
           SizedBox(height: 10.h),
           AppField(
             label: 'ID الأم',
-            child: _plainField('اختياري', form.motherId),
+            child: _plainField('اختياري', form.motherId, context),
           ),
           SizedBox(height: 10.h),
           AppField(
             label: 'ID الأب',
-            child: _plainField('اختياري', form.fatherId),
+            child: _plainField('اختياري', form.fatherId, context),
           ),
         ],
       ),
@@ -153,7 +153,7 @@ class AnimalFormFields extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: AppColors.blueBg.withOpacity(0.4),
+        color: context.palette.infoBg.withOpacity(0.4),
         border: Border.all(color: const Color(0xFFBFDBFE)),
         borderRadius: BorderRadius.circular(16),
       ),
@@ -166,16 +166,16 @@ class AnimalFormFields extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.blueFg)),
+                    color: context.palette.infoFg)),
           ),
           SizedBox(height: 10.h),
-          AppField(label: 'اسم المورد', child: _plainField('مثال: سوق الماشية', form.vendorName)),
+          AppField(label: 'اسم المورد', child: _plainField('مثال: سوق الماشية', form.vendorName, context)),
           SizedBox(height: 10.h),
           _dateField(context, 'تاريخ الشراء', form.purchaseDate),
           SizedBox(height: 10.h),
           AppField(
             label: 'السعر (ريال)',
-            child: _plainField('مثال: 2800', form.purchasePrice,
+            child: _plainField('مثال: 2800', form.purchasePrice, context,
                 number: true),
           ),
           SizedBox(height: 10.h),
@@ -183,9 +183,9 @@ class AnimalFormFields extends StatelessWidget {
           AppField(
             label: 'العمر التقريبي',
             child: Row(children: [
-              Expanded(child: _plainField('سنوات', form.ageYears, number: true)),
+              Expanded(child: _plainField('سنوات', form.ageYears, context, number: true)),
               SizedBox(width: 8.w),
-              Expanded(child: _plainField('أشهر', form.ageMonths, number: true)),
+              Expanded(child: _plainField('أشهر', form.ageMonths, context, number: true)),
             ]),
           ),
         ],
@@ -193,52 +193,52 @@ class AnimalFormFields extends StatelessWidget {
     );
   }
 
-  Widget _plainField(String hint, RxString target, {bool number = false}) {
+  Widget _plainField(String hint, RxString target, BuildContext context, {bool number = false}) {
     return TextField(
       keyboardType: number ? TextInputType.number : TextInputType.text,
       controller: TextEditingController(text: target.value)
         ..selection = TextSelection.collapsed(offset: target.value.length),
       onChanged: (v) => target.value = v,
-      decoration: appInputDecoration(hint),
+      decoration: appInputDecoration(context, hint),
     );
   }
 
-  Widget _dateField(BuildContext context, String label, RxString target) {
-    final has = target.value.isNotEmpty;
+  Widget _dateField(BuildContext context, String label, Rxn<int> target) {
+    final has = target.value != null;
     return AppField(
       label: label,
       child: GestureDetector(
         onTap: () async {
           final now = DateTime.now();
-          final picked = await showDatePicker(
+          final picked = await showDatePicker(//** */
             context: context,
-            initialDate: has ? DateTime.parse(target.value) : now,
+            initialDate: has ? DateTime.fromMillisecondsSinceEpoch(target.value!, isUtc: true) : now,
             firstDate: DateTime(now.year - 20),
-            lastDate: now,
+            lastDate: now,//ما بقدر اختار من المستقبل
           );
-          if (picked != null) target.value = AppDate.addDaysIso(picked, 0);
+          if (picked != null) target.value = AppDate.dateOnlyEpoch(picked);
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
           decoration: BoxDecoration(
-            color: AppColors.pageBg,
-            border: Border.all(color: AppColors.border),
+            color: context.palette.pageBg,
+            border: Border.all(color: context.palette.border),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(children: [
-            Icon(Icons.calendar_today_outlined, size: 16.sp, color: AppColors.textMuted),
+            Icon(Icons.calendar_today_outlined, size: 16.sp, color: context.palette.textMuted),
             SizedBox(width: 8.w),
-            Text(has ? AppDate.formatDate(target.value) : 'mm/dd/yyyy',
+            Text(has ? AppDate.formatEpoch(target.value!) : 'mm/dd/yyyy',
                 style: TextStyle(
                     fontSize: 13.sp,
-                    color: has ? AppColors.textMain : AppColors.textMuted)),
+                    color: has ? context.palette.textMain : context.palette.textMuted)),
           ]),
         ),
       ),
     );
   }
 
-  Widget _toggle(String label, bool active, VoidCallback onTap,
+  Widget _toggle(String label, bool active, VoidCallback onTap, BuildContext context,
       {IconData? icon, Widget? leading}) {
     return Expanded(
       child: GestureDetector(
@@ -246,24 +246,24 @@ class AnimalFormFields extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 11.h),
           decoration: BoxDecoration(
-            color: active ? AppColors.primaryDark : Colors.white,
+            color: active ? context.palette.primaryStrong : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-                color: active ? AppColors.primaryDark : AppColors.border, width: 1.5),
+                color: active ? context.palette.primaryStrong : context.palette.border, width: 1.5),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (leading != null) ...[leading, SizedBox(width: 6.w)],
               if (icon != null) ...[
-                Icon(icon, size: 16.sp, color: active ? Colors.white : AppColors.textMuted),
+                Icon(icon, size: 16.sp, color: active ? Colors.white : context.palette.textMuted),
                 SizedBox(width: 6.w),
               ],
               Text(label,
                   style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.bold,
-                      color: active ? Colors.white : AppColors.textMuted)),
+                      color: active ? Colors.white : context.palette.textMuted)),
             ],
           ),
         ),
@@ -271,7 +271,7 @@ class AnimalFormFields extends StatelessWidget {
     );
   }
 
-  Widget _statusBtn(String label, AnimalStatus s) {
+  Widget _statusBtn(String label, AnimalStatus s, BuildContext context) {
     final active = form.status.value == s;
     return Expanded(
       child: GestureDetector(
@@ -280,16 +280,16 @@ class AnimalFormFields extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 10.h),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: active ? AppColors.primaryDark : Colors.white,
+            color: active ? context.palette.primaryStrong : Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-                color: active ? AppColors.primaryDark : AppColors.border, width: 1.5),
+                color: active ? context.palette.primaryStrong : context.palette.border, width: 1.5),
           ),
           child: Text(label,
               style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
-                  color: active ? Colors.white : AppColors.textMuted)),
+                  color: active ? Colors.white : context.palette.textMuted)),
         ),
       ),
     );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/app_card.dart';
 import '../controllers/field_ops_controller.dart';
 
@@ -20,16 +20,16 @@ class FieldOpsView extends GetView<FieldOpsController> {
               style: TextStyle(
                   fontSize: 11.sp,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textMuted,
+                  color: context.palette.textMuted,
                   letterSpacing: 0.5)),
         ),
-        ...controller.ops.map(_opCard),
+        ...controller.ops.map((op) => _opCard(op, context)),
         SizedBox(height: 80.h),
       ],
     );
   }
 
-  Widget _opCard(OpItem op) {
+  Widget _opCard(OpItem op, BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(top: 12.h),
       child: GestureDetector(
@@ -39,7 +39,7 @@ class FieldOpsView extends GetView<FieldOpsController> {
                 snackPosition: SnackPosition.BOTTOM),
         child: Container(
           padding: EdgeInsets.all(16.w),
-          decoration: cardDecoration(),
+          decoration: cardDecoration(context),
           child: Row(
             children: [
               Container(
@@ -63,11 +63,11 @@ class FieldOpsView extends GetView<FieldOpsController> {
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15.sp,
-                            color: AppColors.textMain)),
+                            color: context.palette.textMain)),
                     SizedBox(height: 2.h),
                     Text(op.sub,
                         style: TextStyle(
-                            fontSize: 11.sp, color: AppColors.textMuted)),
+                            fontSize: 11.sp, color: context.palette.textMuted)),
                   ],
                 ),
               ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/models/med_record.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/models/med_record/med_record.dart';
 import 'package:insighta/modules/dashboard/dashboard_controller.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
 import 'package:insighta/repo.dart/medical_repository.dart';
@@ -100,10 +100,10 @@ class MedicalOpController extends GetxController {
     final prev = _animalRecords
         .where((r) => r.type == MedType.vaccine && r.description.contains(name))
         .toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+      ..sort((a, b) => b.dateUtc.compareTo(a.dateUtc));
     if (prev.isEmpty) return null;
-    final months = AppDate.monthsBetween(prev.first.date);
-    return 'هذا الخروف أخذ هذا التطعيم قبل $months شهر (${AppDate.formatDate(prev.first.date)})';
+    final months = AppDate.monthsBetweenEpoch(prev.first.dateUtc);
+    return 'هذا الخروف أخذ هذا التطعيم قبل $months شهر (${AppDate.formatEpoch(prev.first.dateUtc)})';
   }
 
   Future<void> scan() async {
@@ -145,10 +145,11 @@ class MedicalOpController extends GetxController {
     await _medRepo.addMedRecord(MedRecord(
       id: 'm${DateTime.now().millisecondsSinceEpoch}',
       animalId: a.id,
-      date: AppDate.todayIso(),
+      dateUtc: AppDate.todayEpoch(),
       type: medType.value,
       description: description,
-      synced: false,
+      createdAtUtc: AppDate.nowEpoch(),
+      updatedAtUtc: AppDate.nowEpoch(),
     ));
 
     // تحديث الرئيسية (تغطية التطعيمات تعتمد على السجلات الطبية)

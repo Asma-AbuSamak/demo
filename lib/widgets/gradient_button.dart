@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 
 /// زر بتدرّج أخضر (يُستخدم في الحفظ). يتحوّل رمادياً عند التعطيل.
 class GradientButton extends StatelessWidget {
@@ -25,7 +25,7 @@ class GradientButton extends StatelessWidget {
         width: double.infinity,
         padding: EdgeInsets.symmetric(vertical: 15.h),
         decoration: BoxDecoration(
-          gradient: enabled ? AppColors.headerGradient : null,
+          gradient: enabled ? context.palette.headerGradient : null,
           color: enabled ? null : const Color(0xFFB8C2CC),
           borderRadius: BorderRadius.circular(14),
         ),

@@ -1,5 +1,7 @@
+
 import 'package:get/get.dart';
 import 'package:insighta/app_config.dart';
+import 'package:insighta/database/app_database.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
 import 'package:insighta/repo.dart/inventory_repository.dart';
 import 'package:insighta/repo.dart/medical_repository.dart';
@@ -17,6 +19,8 @@ import 'package:insighta/web_services/scanner_service.dart';
 class InitialBinding extends Bindings {
   @override
   void dependencies() {
+    Get.put<AppDatabase>(AppDatabase(), permanent: true);
+
     if (AppConfig.useMockData) {
       Get.put<IAnimalRepository>(MockAnimalRepository(), permanent: true);
       Get.put<IMedicalRepository>(MockMedicalRepository(), permanent: true);
@@ -24,7 +28,9 @@ class InitialBinding extends Bindings {
       Get.put<IRecordsRepository>(MockRecordsRepository(), permanent: true);
     }
 
+
     Get.put<ScannerService>(ScannerService(), permanent: true);
     Get.put<CatalogService>(CatalogService(), permanent: true);
   }
-}
+  
+  }

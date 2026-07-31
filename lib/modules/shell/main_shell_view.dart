@@ -8,7 +8,7 @@ import 'package:insighta/modules/flock/controllers/flock_controller.dart';
 import 'package:insighta/modules/flock/views/flock_view.dart';
 import 'package:insighta/modules/inventory/views/inventory_view.dart';
 import 'package:insighta/modules/shell/nav_controller.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 
 
 class MainShellView extends GetView<NavController> {
@@ -24,29 +24,29 @@ class MainShellView extends GetView<NavController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
-          _sharedHeader(),
+          _sharedHeader(context),
           Expanded(
-            child: Obx(() => IndexedStack(
+            child: Obx(() => IndexedStack(//بترسم كل الشاشات الأربعة مع بعض
                   index: controller.currentIndex.value,
                   children: _tabs,
                 )),
           ),
         ],
       ),
-      floatingActionButton: Obx(() => _fab(controller.currentIndex.value)),
-      bottomNavigationBar: _bottomNav(),
+      floatingActionButton: Obx(() => _fab(controller.currentIndex.value, context)),
+      bottomNavigationBar: _bottomNav(context),
     );
   }
 
   // الهيدر الأخضر المشترك: التاريخ + العنوان + شارة المزامنة
-  Widget _sharedHeader() {
+  Widget _sharedHeader(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(top: 44.h, bottom: 16.h, left: 20.w, right: 20.w),
-      decoration: const BoxDecoration(gradient: AppColors.headerGradient),
+      decoration: BoxDecoration(gradient: context.palette.headerGradient),
       child: Obx(
         () => Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,11 +108,11 @@ class MainShellView extends GetView<NavController> {
     );
   }
 
-  Widget _fab(int index) {
+  Widget _fab(int index, BuildContext context) {// زر الإضافة أو مسح الكود حسب التبويب
     if (index != 0 && index != 2) return const SizedBox.shrink();
     return Container(
       decoration: BoxDecoration(
-        gradient: AppColors.headerGradient,
+        gradient: context.palette.headerGradient,
         shape: BoxShape.circle,
         boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 12)],
       ),
@@ -130,7 +130,7 @@ class MainShellView extends GetView<NavController> {
     );
   }
 
-  Widget _bottomNav() {
+  Widget _bottomNav(BuildContext context) {//
     return Obx(
       () => NavigationBarTheme(
         data: NavigationBarThemeData(
@@ -140,25 +140,25 @@ class MainShellView extends GetView<NavController> {
         child: NavigationBar(
           height: 62.h,
           backgroundColor: Colors.white,
-          indicatorColor: AppColors.accentLight,
+          indicatorColor: context.palette.accentLight,
           selectedIndex: controller.currentIndex.value,
           onDestinationSelected: controller.changeTab,
-          destinations: const [
+          destinations: [
             NavigationDestination(
-                icon: Icon(Icons.dashboard_outlined),
-                selectedIcon: Icon(Icons.dashboard, color: AppColors.primaryDark),
+                icon: const Icon(Icons.dashboard_outlined),
+                selectedIcon: Icon(Icons.dashboard, color: context.palette.primaryStrong),
                 label: 'الرئيسية'),
             NavigationDestination(
-                icon: Icon(Icons.qr_code_scanner_outlined),
-                selectedIcon: Icon(Icons.qr_code_scanner, color: AppColors.primaryDark),
+                icon: const Icon(Icons.qr_code_scanner_outlined),
+                selectedIcon: Icon(Icons.qr_code_scanner, color: context.palette.primaryStrong),
                 label: 'العمليات'),
             NavigationDestination(
-                icon: Icon(Icons.list_alt_outlined),
-                selectedIcon: Icon(Icons.list_alt, color: AppColors.primaryDark),
+                icon: const Icon(Icons.list_alt_outlined),
+                selectedIcon: Icon(Icons.list_alt, color: context.palette.primaryStrong),
                 label: 'الحلال'),
             NavigationDestination(
-                icon: Icon(Icons.inventory_2_outlined),
-                selectedIcon: Icon(Icons.inventory_2, color: AppColors.primaryDark),
+                icon: const Icon(Icons.inventory_2_outlined),
+                selectedIcon: Icon(Icons.inventory_2, color: context.palette.primaryStrong),
                 label: 'المخزن'),
           ],
         ),

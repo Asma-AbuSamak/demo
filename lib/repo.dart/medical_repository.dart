@@ -1,6 +1,6 @@
-import '../models/weight_record.dart';
-import '../models/med_record.dart';
-import '../models/vaccine_protocol.dart';
+import '../models/weight_record/weight_record.dart';
+import '../models/med_record/med_record.dart';
+import '../models/vaccine_protocol/vaccine_protocol.dart';
 
 abstract class IMedicalRepository {
   // Weight Records

@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/utilities/date_utils.dart';
+import 'package:insighta/widgets/app_card.dart';
 import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/back_header.dart';
 import 'package:insighta/widgets/custom_select.dart';
-import 'package:insighta/models/midicine.dart';
-import 'package:insighta/models/medicine_log.dart';
+import 'package:insighta/models/medicine/medicine.dart';
+import 'package:insighta/models/medicine_log/medicine_log.dart';
 import '../controllers/medicine_detail_controller.dart';
 
 class MedicineDetailView extends GetView<MedicineDetailController> {
@@ -17,7 +18,7 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Obx(() {
         final m = controller.medicine.value;
         if (controller.isLoading.value && m == null) {
@@ -39,19 +40,19 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _stockCard(m),
+                    _stockCard(m, context),
                     SizedBox(height: 14.h),
                     if (controller.isExpired)
-                      _expiredNote()
+                      _expiredNote(context)
                     else ...[
                       _adjustForm(context),
                       SizedBox(height: 14.h),
-                      _batchesCard(),
+                      _batchesCard(context),
                     ],
                     SizedBox(height: 14.h),
-                    _logCard(),
+                    _logCard(context),
                     SizedBox(height: 14.h),
-                    _deleteBtn(),
+                    _deleteBtn(context),
                     SizedBox(height: 24.h),
                   ],
                 ),
@@ -63,21 +64,17 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
     );
   }
 
-  Widget _stockCard(Medicine m) {
+  Widget _stockCard(Medicine m, BuildContext context) {
     final expired = controller.isExpired;
-    final soon = !expired && AppDate.isExpiringSoon(controller.effectiveExpiry);
+    final soon = !expired && AppDate.isExpiringSoonEpoch(controller.effectiveExpiry);
     final badge = expired
-        ? ['منتهي', AppColors.redBg, AppColors.redFg]
+        ? ['منتهي', context.palette.dangerBg, context.palette.dangerFg]
         : soon
-            ? ['ينتهي قريباً', AppColors.yellowBg, AppColors.yellowFg]
-            : ['صالح', AppColors.emeraldBg, AppColors.emeraldFg];
+            ? ['ينتهي قريباً', context.palette.warningBg, context.palette.warningFg]
+            : ['صالح', context.palette.successBg, context.palette.successFg];
     return Container(
       padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.07), blurRadius: 20)],
-      ),
+      decoration: cardDecoration(context),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -93,8 +90,8 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
                         fontSize: 11.sp, fontWeight: FontWeight.bold, color: badge[2] as Color)),
               ),
               SizedBox(height: 6.h),
-              Text('ينتهي ${AppDate.formatDate(controller.effectiveExpiry)}',
-                  style: TextStyle(fontSize: 11.sp, color: AppColors.amber)),
+              Text('ينتهي ${AppDate.formatEpoch(controller.effectiveExpiry)}',
+                  style: TextStyle(fontSize: 11.sp, color: context.palette.brandAccent)),
             ],
           ),
           const Spacer(),
@@ -102,10 +99,10 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text('الكمية الحالية',
-                  style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                  style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
               Text('${m.quantity}',
                   style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.w900, height: 1)),
-              Text(m.unit, style: TextStyle(fontSize: 12.sp, color: AppColors.textMuted)),
+              Text(m.unit, style: TextStyle(fontSize: 12.sp, color: context.palette.textMuted)),
             ],
           ),
         ],
@@ -113,21 +110,21 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
     );
   }
 
-  Widget _expiredNote() {
+  Widget _expiredNote(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(
-        color: AppColors.redBg,
+        color: context.palette.dangerBg,
         border: Border.all(color: const Color(0xFFFCA5A5)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(children: [
-        Icon(Icons.warning_amber_rounded, color: AppColors.destructive, size: 18.sp),
+        Icon(Icons.warning_amber_rounded, color: context.colors.error, size: 18.sp),
         SizedBox(width: 8.w),
         Expanded(
           child: Text('هذا الدواء منتهي الصلاحية — يمكنك حذفه فقط',
               style: TextStyle(
-                  color: AppColors.redFg, fontSize: 12.sp, fontWeight: FontWeight.w600)),
+                  color: context.palette.dangerFg, fontSize: 12.sp, fontWeight: FontWeight.w600)),
         ),
       ]),
     );
@@ -151,7 +148,7 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
             child: TextField(
               controller: controller.qtyCtrl,
               keyboardType: TextInputType.number,
-              decoration: appInputDecoration('مثال: 5'),
+              decoration: appInputDecoration(context, 'مثال: 5'),
             ),
           ),
           SizedBox(height: 10.h),
@@ -168,7 +165,7 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
             child: TextField(
               controller: controller.priceCtrl,
               keyboardType: TextInputType.number,
-              decoration: appInputDecoration('مثال: 85'),
+              decoration: appInputDecoration(context, 'مثال: 85'),
             ),
           ),
           SizedBox(height: 10.h),
@@ -183,12 +180,12 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
           SizedBox(height: 14.h),
           Row(children: [
             Expanded(
-              child: Obx(() => _btn('+  إضافة', AppColors.primaryDark,
+              child: Obx(() => _btn('+  إضافة', context.palette.primaryStrong,
                   controller.canAdjust, controller.addQuantity)),
             ),
             SizedBox(width: 10.w),
             Expanded(
-              child: Obx(() => _btn('-  سحب', AppColors.destructive,
+              child: Obx(() => _btn('-  سحب', context.colors.error,
                   controller.canAdjust, controller.removeQuantity)),
             ),
           ]),
@@ -198,7 +195,7 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
   }
 
   // بطاقة الدُفعات (تصوّر منطق FEFO)
-  Widget _batchesCard() {
+  Widget _batchesCard(BuildContext context) {
     final batches = controller.batches;
     if (batches.length <= 1) return const SizedBox.shrink();
     return Container(
@@ -214,21 +211,21 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
           ),
           ...batches.asMap().entries.map((e) {
             final b = e.value;
-            final expired = AppDate.isExpired(b.expiry);
-            final soon = !expired && AppDate.isExpiringSoon(b.expiry);
+            final expired = AppDate.isExpiredEpoch(b.expiryUtc);
+            final soon = !expired && AppDate.isExpiringSoonEpoch(b.expiryUtc);
             final c = expired
-                ? AppColors.redFg
+                ? context.palette.dangerFg
                 : soon
-                    ? AppColors.yellowFg
-                    : AppColors.emeraldFg;
+                    ? context.palette.warningFg
+                    : context.palette.successFg;
             return Padding(
               padding: EdgeInsets.only(top: 10.h),
               child: Row(children: [
                 Container(width: 8.w, height: 8.w, decoration: BoxDecoration(color: c, shape: BoxShape.circle)),
                 SizedBox(width: 8.w),
-                Text('دُفعة ${e.key + 1}', style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                Text('دُفعة ${e.key + 1}', style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
                 const Spacer(),
-                Text('تنتهي ${AppDate.formatDate(b.expiry)}',
+                Text('تنتهي ${AppDate.formatEpoch(b.expiryUtc)}',
                     style: TextStyle(fontSize: 11.sp, color: c)),
                 SizedBox(width: 10.w),
                 Text('${b.quantity}',
@@ -241,7 +238,7 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
     );
   }
 
-  Widget _logCard() {
+  Widget _logCard(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(14.w),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
@@ -251,23 +248,23 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
           Align(
             alignment: Alignment.centerRight,
             child: Text('سجل الكميات · ${controller.logs.length} عملية',
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: AppColors.textMuted)),
+                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: context.palette.textMuted)),
           ),
           if (controller.logs.isEmpty)
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8.h),
-              child: Text('لا توجد حركات', style: TextStyle(fontSize: 12.sp, color: AppColors.textMuted)),
+              child: Text('لا توجد حركات', style: TextStyle(fontSize: 12.sp, color: context.palette.textMuted)),
             )
           else
-            ...controller.logs.map(_logRow),
+            ...controller.logs.map((l) => _logRow(l, context)),
         ],
       ),
     );
   }
 
-  Widget _logRow(MedicineLog l) {
+  Widget _logRow(MedicineLog l, BuildContext context) {
     final isAdd = l.type == MedicineLogType.add;
-    final color = isAdd ? AppColors.emeraldFg : AppColors.redFg;
+    final color = isAdd ? context.palette.successFg : context.palette.dangerFg;
     final vendor = controller.vendorName(l.vendorId);
     return Padding(
       padding: EdgeInsets.only(top: 10.h),
@@ -279,7 +276,7 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
             height: 26.w,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-                color: isAdd ? AppColors.emeraldBg : AppColors.redBg, shape: BoxShape.circle),
+                color: isAdd ? context.palette.successBg : context.palette.dangerBg, shape: BoxShape.circle),
             child: Icon(isAdd ? Icons.add : Icons.remove, size: 15.sp, color: color),
           ),
           SizedBox(width: 10.w),
@@ -288,21 +285,21 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  if (l.purchasePrice != null)
-                    Text('${l.purchasePrice!.toStringAsFixed(0)} ر/وحدة · ',
-                        style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                  if (l.purchasePriceMinor != null)
+                    Text('${(l.purchasePriceMinor! / 100).toStringAsFixed(0)} ر/وحدة · ',
+                        style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
                   Text('${isAdd ? "+" : "-"}${l.quantity}',
                       style: TextStyle(fontSize: 13.sp, fontWeight: FontWeight.w900, color: color)),
                 ]),
                 Text(
                   [
-                    AppDate.formatDate(l.date),
+                    AppDate.formatEpoch(l.dateUtc),
                     l.note,
-                    if (l.batchExpiryDate != null) 'صلاحية: ${AppDate.formatDate(l.batchExpiryDate!)}',
+                    if (l.batchExpiryDateUtc != null) 'صلاحية: ${AppDate.formatEpoch(l.batchExpiryDateUtc!)}',
                     if (vendor.isNotEmpty) vendor,
                   ].join(' · '),
                   textAlign: TextAlign.end,
-                  style: TextStyle(fontSize: 10.sp, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 10.sp, color: context.palette.textMuted),
                 ),
               ],
             ),
@@ -312,18 +309,18 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
     );
   }
 
-  Widget _deleteBtn() {
+  Widget _deleteBtn(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: controller.deleteMedicine,
       style: OutlinedButton.styleFrom(
-        backgroundColor: AppColors.redBg,
+        backgroundColor: context.palette.dangerBg,
         side: const BorderSide(color: Color(0xFFFCA5A5)),
         padding: EdgeInsets.symmetric(vertical: 14.h),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
-      icon: Icon(Icons.delete_outline, color: AppColors.redFg, size: 18.sp),
+      icon: Icon(Icons.delete_outline, color: context.palette.dangerFg, size: 18.sp),
       label: Text('حذف هذا الدواء نهائياً',
-          style: TextStyle(color: AppColors.redFg, fontSize: 14.sp, fontWeight: FontWeight.bold)),
+          style: TextStyle(color: context.palette.dangerFg, fontSize: 14.sp, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -343,34 +340,34 @@ class MedicineDetailView extends GetView<MedicineDetailController> {
     );
   }
 
-  Widget _dateField(BuildContext context, String label, RxString target) {
+  Widget _dateField(BuildContext context, String label, Rxn<int> target) {
     return AppField(
       label: label,
       child: Obx(() {
-        final has = target.value.isNotEmpty;
+        final has = target.value != null;
         return GestureDetector(
           onTap: () async {
             final now = DateTime.now();
             final picked = await showDatePicker(
               context: context,
-              initialDate: has ? DateTime.parse(target.value) : now,
+              initialDate: has ? DateTime.fromMillisecondsSinceEpoch(target.value!, isUtc: true) : now,
               firstDate: now,
               lastDate: DateTime(now.year + 10),
             );
-            if (picked != null) target.value = AppDate.addDaysIso(picked, 0);
+            if (picked != null) target.value = AppDate.dateOnlyEpoch(picked);
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              border: Border.all(color: AppColors.border),
+              color: context.palette.pageBg,
+              border: Border.all(color: context.palette.border),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(children: [
-              Icon(Icons.calendar_today_outlined, size: 16.sp, color: AppColors.textMuted),
+              Icon(Icons.calendar_today_outlined, size: 16.sp, color: context.palette.textMuted),
               SizedBox(width: 8.w),
-              Text(has ? AppDate.formatDate(target.value) : 'mm/dd/yyyy',
-                  style: TextStyle(fontSize: 13.sp, color: has ? AppColors.textMain : AppColors.textMuted)),
+              Text(has ? AppDate.formatEpoch(target.value!) : 'mm/dd/yyyy',
+                  style: TextStyle(fontSize: 13.sp, color: has ? context.palette.textMain : context.palette.textMuted)),
             ]),
           ),
         );

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/animal_badge.dart';
 import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/back_header.dart';
@@ -17,7 +17,7 @@ class DeleteOpView extends GetView<DeleteOpController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           const BackHeader(title: 'ازالة'),
@@ -25,9 +25,9 @@ class DeleteOpView extends GetView<DeleteOpController> {
             child: Obx(() {
               switch (controller.step.value) {
                 case DeleteStep.scanId:
-                  return _scanStep();
+                  return _scanStep(context);
                 case DeleteStep.form:
-                  return _formStep();
+                  return _formStep(context);
                 case DeleteStep.saved:
                   return SavedOverlay(message: controller.savedMsg.value);
               }
@@ -38,7 +38,7 @@ class DeleteOpView extends GetView<DeleteOpController> {
     );
   }
 
-  Widget _scanStep() {
+  Widget _scanStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -52,7 +52,7 @@ class DeleteOpView extends GetView<DeleteOpController> {
           SizedBox(height: 16.h),
           Obx(() => _button(
                 label: 'بحث',
-                color: AppColors.destructive,
+                color: context.colors.error,
                 enabled: controller.canSearch,
                 onTap: controller.search,
               )),
@@ -60,7 +60,7 @@ class DeleteOpView extends GetView<DeleteOpController> {
               ? Padding(
                   padding: EdgeInsets.only(top: 12.h),
                   child: Text('لا يوجد خروف بهذا الـ ID',
-                      style: TextStyle(color: AppColors.redFg, fontSize: 12.sp)),
+                      style: TextStyle(color: context.palette.dangerFg, fontSize: 12.sp)),
                 )
               : const SizedBox.shrink()),
         ],
@@ -68,7 +68,7 @@ class DeleteOpView extends GetView<DeleteOpController> {
     );
   }
 
-  Widget _formStep() {
+  Widget _formStep(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -81,9 +81,9 @@ class DeleteOpView extends GetView<DeleteOpController> {
           AppField(
             label: 'سبب الحذف',
             child: Obx(() => Row(children: [
-                  _reasonBtn(DeleteReason.death, 'وفاة'),
+                  _reasonBtn(DeleteReason.death, 'وفاة', context),
                   SizedBox(width: 8.w),
-                  _reasonBtn(DeleteReason.sale, 'بيع'),
+                  _reasonBtn(DeleteReason.sale, 'بيع', context),
                 ])),
           ),
           SizedBox(height: 14.h),
@@ -103,10 +103,10 @@ class DeleteOpView extends GetView<DeleteOpController> {
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
                     onChanged: (v) => controller.salePrice.value = v,
-                    decoration: appInputDecoration('مثال: 1800').copyWith(
+                    decoration: appInputDecoration(context, 'مثال: 1800').copyWith(
                       suffixText: 'ر',
                       suffixStyle:
-                          TextStyle(color: AppColors.textMuted, fontSize: 12.sp),
+                          TextStyle(color: context.palette.textMuted, fontSize: 12.sp),
                     ),
                   ),
                 )),
@@ -117,7 +117,7 @@ class DeleteOpView extends GetView<DeleteOpController> {
             child: TextField(
               maxLines: 3,
               onChanged: (v) => controller.notes.value = v,
-              decoration: appInputDecoration('أي تفاصيل إضافية...'),
+              decoration: appInputDecoration(context, 'أي تفاصيل إضافية...'),
             ),
           ),
           SizedBox(height: 14.h),
@@ -126,18 +126,18 @@ class DeleteOpView extends GetView<DeleteOpController> {
           Container(
             padding: EdgeInsets.all(12.w),
             decoration: BoxDecoration(
-              color: AppColors.redBg,
+              color: context.palette.dangerBg,
               border: Border.all(color: const Color(0xFFFCA5A5)),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(children: [
               Icon(Icons.warning_amber_rounded,
-                  color: AppColors.destructive, size: 18.sp),
+                  color: context.colors.error, size: 18.sp),
               SizedBox(width: 8.w),
               Expanded(
                 child: Text('سيتم إزالة الخروف من قائمة الحلال نهائياً',
                     style: TextStyle(
-                        color: AppColors.redFg,
+                        color: context.palette.dangerFg,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600)),
               ),
@@ -147,7 +147,7 @@ class DeleteOpView extends GetView<DeleteOpController> {
 
           _button(
             label: '🗑  تأكيد الحذف',
-            color: AppColors.destructive,
+            color: context.colors.error,
             enabled: true,
             onTap: controller.confirm,
           ),
@@ -156,7 +156,7 @@ class DeleteOpView extends GetView<DeleteOpController> {
     );
   }
 
-  Widget _reasonBtn(DeleteReason r, String label) {
+  Widget _reasonBtn(DeleteReason r, String label, BuildContext context) {
     final active = controller.reason.value == r;
     return Expanded(
       child: GestureDetector(
@@ -165,17 +165,17 @@ class DeleteOpView extends GetView<DeleteOpController> {
           padding: EdgeInsets.symmetric(vertical: 12.h),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: active ? AppColors.destructive : Colors.white,
+            color: active ? context.colors.error : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-                color: active ? AppColors.destructive : AppColors.border,
+                color: active ? context.colors.error : context.palette.border,
                 width: 1.5),
           ),
           child: Text(label,
               style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.bold,
-                  color: active ? Colors.white : AppColors.textMuted)),
+                  color: active ? Colors.white : context.palette.textMuted)),
         ),
       ),
     );

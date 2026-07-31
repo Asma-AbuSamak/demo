@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'app_field.dart';
 
 /// حقل إدخال ID مع زر مسح (سكانر) ونبضة أثناء المسح.
@@ -27,7 +27,7 @@ class ScanIdInput extends StatelessWidget {
           Expanded(
             child: TextField(
               controller: controller,
-              decoration: appInputDecoration('اكتب الـ ID أو امسح'),
+              decoration: appInputDecoration(context, 'اكتب الـ ID أو امسح'),
             ),
           ),
           SizedBox(width: 8.w),
@@ -38,12 +38,12 @@ class ScanIdInput extends StatelessWidget {
               width: 44.w,
               height: 44.w,
               decoration: BoxDecoration(
-                color: scanning ? AppColors.accentGreen : AppColors.primaryDark,
+                color: scanning ? context.palette.accentGreen : context.palette.primaryStrong,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 Icons.qr_code_scanner,
-                color: scanning ? AppColors.primary : Colors.white,
+                color: scanning ? context.colors.primary : Colors.white,
                 size: 20.sp,
               ),
             ),

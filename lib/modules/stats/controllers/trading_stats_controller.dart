@@ -1,7 +1,8 @@
 import 'package:get/get.dart';
-import 'package:insighta/models/animal.dart';
+import 'package:insighta/models/animal/animal.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
 import 'package:insighta/repo.dart/records_repository.dart';
+import 'package:insighta/utilities/date_utils.dart';
 
 class TradeMonth {
   final String key;
@@ -46,7 +47,7 @@ class TradingStatsController extends GetxController {
     final sales = await _recordsRepo.getSales();
 
     final purchased = animals
-        .where((a) => a.origin == Origin.purchased && (a.purchaseDate ?? '').isNotEmpty)
+        .where((a) => a.origin == Origin.purchased && a.purchaseDateUtc != null)
         .toList();
     totalBought.value = purchased.length;
     totalSold.value = sales.length;
@@ -55,19 +56,21 @@ class TradingStatsController extends GetxController {
     final map = <String, Map<String, List<num>>>{};
     List<num> cell() => [0, 0, 0.0, 0.0];
 
+    String monthKey(int y, int m) => '$y-${m.toString().padLeft(2, '0')}';
+
     for (final a in purchased) {
-      final y = a.purchaseDate!.substring(0, 4);
-      final m = a.purchaseDate!.substring(0, 7);
+      final y = AppDate.yearOfEpoch(a.purchaseDateUtc!).toString();
+      final m = monthKey(AppDate.yearOfEpoch(a.purchaseDateUtc!), AppDate.monthOfEpoch(a.purchaseDateUtc!));
       map.putIfAbsent(y, () => {}).putIfAbsent(m, cell);
       map[y]![m]![0] = map[y]![m]![0] + 1;
-      map[y]![m]![2] = map[y]![m]![2] + (double.tryParse(a.purchasePrice ?? '0') ?? 0);
+      map[y]![m]![2] = map[y]![m]![2] + (a.purchasePriceMinor ?? 0) / 100;
     }
     for (final s in sales) {
-      final y = s.date.substring(0, 4);
-      final m = s.date.substring(0, 7);
+      final y = AppDate.yearOfEpoch(s.dateUtc).toString();
+      final m = monthKey(AppDate.yearOfEpoch(s.dateUtc), AppDate.monthOfEpoch(s.dateUtc));
       map.putIfAbsent(y, () => {}).putIfAbsent(m, cell);
       map[y]![m]![1] = map[y]![m]![1] + 1;
-      map[y]![m]![3] = map[y]![m]![3] + s.salePrice;
+      map[y]![m]![3] = map[y]![m]![3] + s.salePriceMinor / 100;
     }
 
     final result = <TradeYear>[];

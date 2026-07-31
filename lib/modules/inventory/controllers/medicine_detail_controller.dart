@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:insighta/utilities/date_utils.dart';
-import 'package:insighta/models/midicine.dart';
-import 'package:insighta/models/medicine_log.dart';
-import 'package:insighta/models/vendor.dart';
+import 'package:insighta/models/medicine/medicine.dart';
+import 'package:insighta/models/medicine_log/medicine_log.dart';
+import 'package:insighta/models/vendor/vendor.dart';
 import 'package:insighta/repo.dart/inventory_repository.dart';
 import 'package:insighta/web_services/catalog_service.dart';
 import 'inventory_controller.dart';
@@ -12,10 +12,10 @@ import 'inventory_controller.dart';
 /// دُفعة نشِطة: كمية متبقّية + تاريخ انتهائها الخاص.
 class MedBatch {
   final int quantity;
-  final String expiry;
-  final double? price;
+  final int expiryUtc;
+  final int? priceMinor;
   final String? vendorId;
-  MedBatch(this.quantity, this.expiry, this.price, this.vendorId);
+  MedBatch(this.quantity, this.expiryUtc, this.priceMinor, this.vendorId);
 }
 
 class MedicineDetailController extends GetxController {
@@ -32,7 +32,7 @@ class MedicineDetailController extends GetxController {
   final qtyCtrl = TextEditingController();
   final note = ''.obs;
   final priceCtrl = TextEditingController();
-  final batchExpiry = ''.obs;
+  final batchExpiry = Rxn<int>();
   final selectedVendor = ''.obs;
   final qtyVal = ''.obs;
 
@@ -59,14 +59,14 @@ class MedicineDetailController extends GetxController {
     }
     medicine.value = m;
     final l = await _repo.getLogsFor(medicineId);
-    l.sort((a, b) => b.date.compareTo(a.date));
+    l.sort((a, b) => b.dateUtc.compareTo(a.dateUtc));
     logs.value = l;
     vendors.value = await _repo.getVendors();
     isLoading.value = false;
   }
 
   bool get isExpired =>
-      medicine.value != null && AppDate.isExpired(medicine.value!.expiryDate);
+      medicine.value != null && AppDate.isExpiredEpoch(medicine.value!.expiryDateUtc);
   bool get canAdjust => int.tryParse(qtyVal.value.trim()) != null;
 
   String vendorName(String? id) {
@@ -85,12 +85,12 @@ class MedicineDetailController extends GetxController {
     if (adds.isEmpty) {
       // دواء بلا سجل دُفعات → دُفعة واحدة ضمنية بكامل الكمية
       return med.quantity > 0
-          ? [MedBatch(med.quantity, med.expiryDate, null, null)]
+          ? [MedBatch(med.quantity, med.expiryDateUtc, null, null)]
           : [];
     }
     // رتّب الإضافات حسب تاريخ الانتهاء تصاعدياً (الأقرب أولاً)
-    adds.sort((a, b) => (a.batchExpiryDate ?? med.expiryDate)
-        .compareTo(b.batchExpiryDate ?? med.expiryDate));
+    adds.sort((a, b) => (a.batchExpiryDateUtc ?? med.expiryDateUtc)
+        .compareTo(b.batchExpiryDateUtc ?? med.expiryDateUtc));
     int removed = logs
         .where((l) => l.type == MedicineLogType.remove)
         .fold(0, (s, l) => s + l.quantity);
@@ -104,17 +104,17 @@ class MedicineDetailController extends GetxController {
         removed -= take;
       }
       if (remaining > 0) {
-        result.add(MedBatch(remaining, a.batchExpiryDate ?? med.expiryDate,
-            a.purchasePrice, a.vendorId));
+        result.add(MedBatch(remaining, a.batchExpiryDateUtc ?? med.expiryDateUtc,
+            a.purchasePriceMinor, a.vendorId));
       }
     }
     return result;
   }
 
   /// أقرب تاريخ انتهاء بين الدُفعات النشِطة (يمثّل صلاحية الدواء الفعلية).
-  String get effectiveExpiry {
+  int get effectiveExpiry {
     final b = batches;
-    return b.isEmpty ? (medicine.value?.expiryDate ?? '') : b.first.expiry;
+    return b.isEmpty ? (medicine.value?.expiryDateUtc ?? 0) : b.first.expiryUtc;
   }
 
   Future<void> addQuantity() => _adjust(MedicineLogType.add);
@@ -130,20 +130,24 @@ class MedicineDetailController extends GetxController {
       if (v.name == selectedVendor.value) vId = v.id;
     }
 
+    final now = AppDate.nowEpoch();
     await _repo.addLog(MedicineLog(
       id: 'ml${DateTime.now().millisecondsSinceEpoch}',
       medicineId: med.id,
-      date: AppDate.todayIso(),
+      dateUtc: AppDate.todayEpoch(),
       type: type,
       quantity: amount,
       note: note.value.trim().isEmpty
           ? (type == MedicineLogType.add ? 'إضافة للمخزن' : 'سحب من المخزن')
           : note.value.trim(),
       vendorId: type == MedicineLogType.add ? vId : null,
-      purchasePrice:
-          type == MedicineLogType.add ? double.tryParse(priceCtrl.text.trim()) : null,
-      batchExpiryDate:
-          type == MedicineLogType.add && batchExpiry.value.isNotEmpty ? batchExpiry.value : null,
+      purchasePriceMinor: type == MedicineLogType.add && double.tryParse(priceCtrl.text.trim()) != null
+          ? (double.parse(priceCtrl.text.trim()) * 100).round()
+          : null,
+      batchExpiryDateUtc:
+          type == MedicineLogType.add ? batchExpiry.value : null,
+      createdAtUtc: now,
+      updatedAtUtc: now,
     ));
 
     final newQty = type == MedicineLogType.add
@@ -154,8 +158,8 @@ class MedicineDetailController extends GetxController {
 
     // مزامنة صلاحية الدواء = أقرب دُفعة نشِطة (FEFO)
     final eff = effectiveExpiry;
-    if (eff.isNotEmpty && eff != medicine.value!.expiryDate) {
-      await _repo.updateMedicine(medicine.value!.copyWith(expiryDate: eff));
+    if (eff != 0 && eff != medicine.value!.expiryDateUtc) {
+      await _repo.updateMedicine(medicine.value!.copyWith(expiryDateUtc: eff));
       await load();
     }
 
@@ -173,7 +177,7 @@ class MedicineDetailController extends GetxController {
     qtyCtrl.clear();
     note.value = '';
     priceCtrl.clear();
-    batchExpiry.value = '';
+    batchExpiry.value = null;
     selectedVendor.value = '';
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:insighta/models/animal.dart';
+import 'package:insighta/models/animal/animal.dart';
 import 'package:insighta/modules/dashboard/dashboard_controller.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
 import 'package:insighta/web_services/scanner_service.dart';

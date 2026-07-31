@@ -6,7 +6,7 @@ class LoginController extends GetxController {
   final password = ''.obs;
 
   void login() {
-    Get.offAllNamed(Routes.main);
+    Get.offAllNamed(Routes.main);//ما بترجع للشاشات قبل
   }
 
   void continueAsGuest() => Get.offAllNamed(Routes.main);

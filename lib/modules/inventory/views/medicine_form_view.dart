@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/app_constants.dart';
 import 'package:insighta/utilities/date_utils.dart';
 import 'package:insighta/widgets/app_field.dart';
@@ -17,7 +17,7 @@ class MedicineFormView extends GetView<MedicineFormController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           const BackHeader(title: 'إضافة دواء جديد', subtitle: 'المخزن الطبي'),
@@ -31,7 +31,7 @@ class MedicineFormView extends GetView<MedicineFormController> {
                     label: 'اسم الدواء',
                     child: TextField(
                       controller: controller.nameCtrl,
-                      decoration: appInputDecoration('مثال: أوكسي تتراسيكلين 20%'),
+                      decoration: appInputDecoration(context, 'مثال: أوكسي تتراسيكلين 20%'),
                     ),
                   ),
                   SizedBox(height: 14.h),
@@ -42,7 +42,7 @@ class MedicineFormView extends GetView<MedicineFormController> {
                         child: TextField(
                           controller: controller.qtyCtrl,
                           keyboardType: TextInputType.number,
-                          decoration: appInputDecoration('12'),
+                          decoration: appInputDecoration(context, '12'),
                         ),
                       ),
                     ),
@@ -74,36 +74,36 @@ class MedicineFormView extends GetView<MedicineFormController> {
     );
   }
 
-  Widget _dateField(BuildContext context, String label, RxString target) {
+  Widget _dateField(BuildContext context, String label, Rxn<int> target) {
     return AppField(
       label: label,
       child: Obx(() {
-        final has = target.value.isNotEmpty;
+        final has = target.value != null;
         return GestureDetector(
           onTap: () async {
             final now = DateTime.now();
             final picked = await showDatePicker(
               context: context,
-              initialDate: has ? DateTime.parse(target.value) : now,
+              initialDate: has ? DateTime.fromMillisecondsSinceEpoch(target.value!, isUtc: true) : now,
               firstDate: now,
               lastDate: DateTime(now.year + 10),
             );
-            if (picked != null) target.value = AppDate.addDaysIso(picked, 0);
+            if (picked != null) target.value = AppDate.dateOnlyEpoch(picked);
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              border: Border.all(color: AppColors.border),
+              color: context.palette.pageBg,
+              border: Border.all(color: context.palette.border),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(children: [
-              Icon(Icons.calendar_today_outlined, size: 16.sp, color: AppColors.textMuted),
+              Icon(Icons.calendar_today_outlined, size: 16.sp, color: context.palette.textMuted),
               SizedBox(width: 8.w),
-              Text(has ? AppDate.formatDate(target.value) : 'mm/dd/yyyy',
+              Text(has ? AppDate.formatEpoch(target.value!) : 'mm/dd/yyyy',
                   style: TextStyle(
                       fontSize: 13.sp,
-                      color: has ? AppColors.textMain : AppColors.textMuted)),
+                      color: has ? context.palette.textMain : context.palette.textMuted)),
             ]),
           ),
         );

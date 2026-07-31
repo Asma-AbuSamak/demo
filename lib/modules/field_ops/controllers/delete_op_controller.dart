@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:insighta/app_constants.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/models/death_record.dart';
-import 'package:insighta/models/sale_record.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/models/death_record/death_record.dart';
+import 'package:insighta/models/sale_record/sale_record.dart';
 import 'package:insighta/modules/dashboard/dashboard_controller.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
 import 'package:insighta/repo.dart/records_repository.dart';
@@ -90,10 +90,12 @@ class DeleteOpController extends GetxController {
       await _recordsRepo.addDeath(DeathRecord(
         id: 'd${DateTime.now().millisecondsSinceEpoch}',
         animalId: a.id,
-        date: AppDate.todayIso(),
+        dateUtc: AppDate.todayEpoch(),
         cause: deathCause.value.trim().isEmpty ? 'مجهول السبب' : deathCause.value.trim(),
         breed: a.breed,
         gender: a.gender,
+        createdAtUtc: AppDate.nowEpoch(),
+        updatedAtUtc: AppDate.nowEpoch(),
       ));
       savedMsg.value = 'تم تسجيل وفاة الخروف ${a.id}';
     } else {
@@ -101,12 +103,13 @@ class DeleteOpController extends GetxController {
       await _recordsRepo.addSale(SaleRecord(
         id: 's${DateTime.now().millisecondsSinceEpoch}',
         animalId: a.id,
-        date: AppDate.todayIso(),
-        salePrice: price,
+        dateUtc: AppDate.todayEpoch(),
+        salePriceMinor: (price * 100).round(),
         breed: a.breed,
         gender: a.gender,
-        purchasePrice:
-            a.purchasePrice != null ? double.tryParse(a.purchasePrice!) : null,
+        purchasePriceMinor: a.purchasePriceMinor,
+        createdAtUtc: AppDate.nowEpoch(),
+        updatedAtUtc: AppDate.nowEpoch(),
       ));
       savedMsg.value = 'تم تسجيل بيع الخروف ${a.id} بسعر ${salePrice.value} ريال';
     }

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/utilities/date_utils.dart';
 import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/back_header.dart';
 import 'package:insighta/widgets/custom_select.dart';
-import 'package:insighta/models/vaccine_protocol.dart';
+import 'package:insighta/models/vaccine_protocol/vaccine_protocol.dart';
 import '../controllers/protocols_controller.dart';
 
 class ProtocolAddView extends GetView<ProtocolsController> {
@@ -19,7 +19,7 @@ class ProtocolAddView extends GetView<ProtocolsController> {
   Widget build(BuildContext context) {
     final isVaccine = _type == ProtocolType.vaccine;
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           BackHeader(title: isVaccine ? 'إضافة مطعوم جديد' : 'إضافة علاج جديد'),
@@ -65,6 +65,7 @@ class ProtocolAddView extends GetView<ProtocolsController> {
         SizedBox(height: 20.h),
         Obx(() => _saveBtn(
               enabled: controller.canSaveVaccine,
+              context: context,
               onTap: () async {
                 await controller.saveVaccine();
                 Get.back();
@@ -113,6 +114,7 @@ class ProtocolAddView extends GetView<ProtocolsController> {
         SizedBox(height: 20.h),
         Obx(() => _saveBtn(
               enabled: controller.canSaveTreatment,
+              context: context,
               onTap: () async {
                 await controller.saveTreatment();
                 Get.back();
@@ -122,42 +124,42 @@ class ProtocolAddView extends GetView<ProtocolsController> {
     );
   }
 
-  Widget _dateField(BuildContext context, String label, RxString target,
+  Widget _dateField(BuildContext context, String label, Rxn<int> target,
       {VoidCallback? onPicked}) {
     return AppField(
       label: label,
       child: Obx(() {
-        final has = target.value.isNotEmpty;
+        final has = target.value != null;
         return GestureDetector(
           onTap: () async {
             final now = DateTime.now();
             final picked = await showDatePicker(
               context: context,
-              initialDate: has ? DateTime.parse(target.value) : now,
+              initialDate: has ? DateTime.fromMillisecondsSinceEpoch(target.value!, isUtc: true) : now,
               firstDate: DateTime(now.year - 5),
               lastDate: DateTime(now.year + 5),
             );
             if (picked != null) {
-              target.value = AppDate.addDaysIso(picked, 0); // yyyy-MM-dd
+              target.value = AppDate.dateOnlyEpoch(picked);
               onPicked?.call();
             }
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
             decoration: BoxDecoration(
-              color: AppColors.pageBg,
-              border: Border.all(color: AppColors.border),
+              color: context.palette.pageBg,
+              border: Border.all(color: context.palette.border),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
                 Icon(Icons.calendar_today_outlined,
-                    size: 16.sp, color: AppColors.textMuted),
+                    size: 16.sp, color: context.palette.textMuted),
                 SizedBox(width: 8.w),
-                Text(has ? AppDate.formatDate(target.value) : 'mm/dd/yyyy',
+                Text(has ? AppDate.formatEpoch(target.value!) : 'mm/dd/yyyy',
                     style: TextStyle(
                         fontSize: 13.sp,
-                        color: has ? AppColors.textMain : AppColors.textMuted)),
+                        color: has ? context.palette.textMain : context.palette.textMuted)),
               ],
             ),
           ),
@@ -166,13 +168,13 @@ class ProtocolAddView extends GetView<ProtocolsController> {
     );
   }
 
-  Widget _saveBtn({required bool enabled, required VoidCallback onTap}) {
+  Widget _saveBtn({required bool enabled, required VoidCallback onTap, required BuildContext context}) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: enabled ? onTap : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryDark,
+          backgroundColor: context.palette.primaryStrong,
           disabledBackgroundColor: const Color(0xFF9DE0C6),
           padding: EdgeInsets.symmetric(vertical: 14.h),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

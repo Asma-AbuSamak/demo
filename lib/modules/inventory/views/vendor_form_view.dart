@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/back_header.dart';
 import 'package:insighta/widgets/gradient_button.dart';
@@ -15,7 +15,7 @@ class VendorFormView extends GetView<VendorFormController> {
   Widget build(BuildContext context) {
     final edit = controller.isEdit;
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           BackHeader(
@@ -28,14 +28,14 @@ class VendorFormView extends GetView<VendorFormController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _field('اسم المورد', 'مثال: صيدلية بيطرية الرياض', controller.nameCtrl),
+                  _field('اسم المورد', 'مثال: صيدلية بيطرية الرياض', controller.nameCtrl, context),
                   SizedBox(height: 14.h),
-                  _field('التخصص', 'مثال: أدوية وتطعيمات', controller.specialtyCtrl),
+                  _field('التخصص', 'مثال: أدوية وتطعيمات', controller.specialtyCtrl, context),
                   SizedBox(height: 14.h),
-                  _field('رقم الجوال', '+966 50 000 0000', controller.phoneCtrl,
+                  _field('رقم الجوال', '+966 50 000 0000', controller.phoneCtrl, context,
                       number: true),
                   SizedBox(height: 14.h),
-                  _field('العنوان', 'مثال: الرياض، حي العليا', controller.addressCtrl),
+                  _field('العنوان', 'مثال: الرياض، حي العليا', controller.addressCtrl, context),
                   SizedBox(height: 20.h),
                   Obx(() => GradientButton(
                         label: edit ? 'حفظ التغييرات' : 'حفظ المورد',
@@ -48,15 +48,15 @@ class VendorFormView extends GetView<VendorFormController> {
                     OutlinedButton.icon(
                       onPressed: controller.delete,
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColors.redBg,
+                        backgroundColor: context.palette.dangerBg,
                         side: const BorderSide(color: Color(0xFFFCA5A5)),
                         padding: EdgeInsets.symmetric(vertical: 14.h),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      icon: Icon(Icons.delete_outline, color: AppColors.redFg, size: 18.sp),
+                      icon: Icon(Icons.delete_outline, color: context.palette.dangerFg, size: 18.sp),
                       label: Text('حذف هذا المورد نهائياً',
                           style: TextStyle(
-                              color: AppColors.redFg,
+                              color: context.palette.dangerFg,
                               fontSize: 14.sp,
                               fontWeight: FontWeight.bold)),
                     ),
@@ -70,14 +70,14 @@ class VendorFormView extends GetView<VendorFormController> {
     );
   }
 
-  Widget _field(String label, String hint, TextEditingController ctrl,
+  Widget _field(String label, String hint, TextEditingController ctrl, BuildContext context,
       {bool number = false}) {
     return AppField(
       label: label,
       child: TextField(
         controller: ctrl,
         keyboardType: number ? TextInputType.phone : TextInputType.text,
-        decoration: appInputDecoration(hint),
+        decoration: appInputDecoration(context, hint),
       ),
     );
   }

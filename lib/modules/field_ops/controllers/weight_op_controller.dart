@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:insighta/models/animal.dart';
-import 'package:insighta/models/weight_record.dart';
+import 'package:insighta/models/animal/animal.dart';
+import 'package:insighta/models/weight_record/weight_record.dart';
 import 'package:insighta/modules/dashboard/dashboard_controller.dart';
 import 'package:insighta/repo.dart/animal_repository.dart';
 import 'package:insighta/repo.dart/medical_repository.dart';
@@ -67,7 +67,7 @@ class WeightOpController extends GetxController {
     }
     animal.value = a;
     final w = await _medRepo.getWeightsFor(a.id);
-    w.sort((x, y) => y.date.compareTo(x.date)); // الأحدث أولاً
+    w.sort((x, y) => y.dateUtc.compareTo(x.dateUtc)); // الأحدث أولاً
     lastWeights.value = w.take(3).toList();
     step.value = WeightStep.form;
   }
@@ -81,11 +81,12 @@ class WeightOpController extends GetxController {
     await _medRepo.addWeight(WeightRecord(
       id: 'w${DateTime.now().millisecondsSinceEpoch}',
       animalId: a.id,
-      date: AppDate.todayIso(),
+      dateUtc: AppDate.todayEpoch(),
       weight: w,
-      synced: false,
+      createdAtUtc: AppDate.nowEpoch(),
+      updatedAtUtc: AppDate.nowEpoch(),
     ));
-    await _animalRepo.update(a.copyWith(weight: w));
+    await _animalRepo.update(a.copyWith(weightGrams: (w * 1000).round()));
 
     // تحديث الشاشات المفتوحة على نفس البيانات
     if (Get.isRegistered<DashboardController>()) Get.find<DashboardController>().load();

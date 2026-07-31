@@ -1,6 +1,6 @@
-import '../models/breeding_record.dart';
-import '../models/death_record.dart';
-import '../models/sale_record.dart';
+import '../models/breeding_record/breeding_record.dart';
+import '../models/death_record/death_record.dart';
+import '../models/sale_record/sale_record.dart';
 
 abstract class IRecordsRepository {
   Future<List<BreedingRecord>> getBreedings();

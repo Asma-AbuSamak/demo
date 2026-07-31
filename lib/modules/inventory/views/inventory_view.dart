@@ -3,10 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:insighta/app_routes.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/app_card.dart';
-import 'package:insighta/models/midicine.dart';
-import 'package:insighta/models/vendor.dart';
+import 'package:insighta/models/medicine/medicine.dart';
+import 'package:insighta/models/vendor/vendor.dart';
 import '../controllers/inventory_controller.dart';
 
 class InventoryView extends GetView<InventoryController> {
@@ -23,9 +23,9 @@ class InventoryView extends GetView<InventoryController> {
           return ListView(
             padding: EdgeInsets.all(16.w),
             children: [
-              _tabsRow(),
+              _tabsRow(context),
               SizedBox(height: 16.h),
-              if (controller.tab.value == 0) ..._medicinesSection() else ..._vendorsSection(),
+              if (controller.tab.value == 0) ..._medicinesSection(context) else ..._vendorsSection(context),
               SizedBox(height: 90.h),
             ],
           );
@@ -41,8 +41,8 @@ class InventoryView extends GetView<InventoryController> {
             child: Container(
               width: 56.w,
               height: 56.w,
-              decoration: const BoxDecoration(
-                  gradient: AppColors.headerGradient, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                  gradient: context.palette.headerGradient, shape: BoxShape.circle),
               child: Icon(Icons.add, color: Colors.white, size: 28.sp),
             ),
           ),
@@ -51,18 +51,18 @@ class InventoryView extends GetView<InventoryController> {
     );
   }
 
-  Widget _tabsRow() {
+  Widget _tabsRow(BuildContext context) {
     return Row(
       children: [
         Expanded(
           child: Container(
             padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
-                color: AppColors.border,
+                color: context.palette.border,
                 borderRadius: BorderRadius.circular(12)),
             child: Row(children: [
-              Expanded(child: _tab('🧪 الأدوية', 0)),
-              Expanded(child: _tab('📋 الموردون', 1)),
+              Expanded(child: _tab('🧪 الأدوية', 0, context)),
+              Expanded(child: _tab('📋 الموردون', 1, context)),
             ]),
           ),
         ),
@@ -72,16 +72,16 @@ class InventoryView extends GetView<InventoryController> {
           child: Container(
             width: 40.w,
             height: 40.w,
-            decoration: cardDecoration(radius: BorderRadius.circular(12)),
+            decoration: cardDecoration(context, radius: BorderRadius.circular(12)),
             child: Icon(Icons.receipt_long_outlined,
-                size: 18.sp, color: AppColors.textMuted),
+                size: 18.sp, color: context.palette.textMuted),
           ),
         ),
       ],
     );
   }
 
-  Widget _tab(String label, int i) {
+  Widget _tab(String label, int i, BuildContext context) {
     final active = controller.tab.value == i;
     return GestureDetector(
       onTap: () => controller.tab.value = i,
@@ -99,25 +99,25 @@ class InventoryView extends GetView<InventoryController> {
             style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.bold,
-                color: active ? AppColors.emeraldFg : AppColors.textMuted)),
+                color: active ? context.palette.successFg : context.palette.textMuted)),
       ),
     );
   }
 
-  List<Widget> _medicinesSection() {
+  List<Widget> _medicinesSection(BuildContext context) {
     return [
       if (controller.expiredCount > 0 || controller.soonCount > 0)
         Container(
           margin: EdgeInsets.only(bottom: 8.h),
           padding: EdgeInsets.all(12.w),
           decoration: BoxDecoration(
-            color: AppColors.redBg,
+            color: context.palette.dangerBg,
             border: Border.all(color: const Color(0xFFFCA5A5)),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(children: [
             Icon(Icons.warning_amber_rounded,
-                color: AppColors.destructive, size: 18.sp),
+                color: context.colors.error, size: 18.sp),
             SizedBox(width: 8.w),
             Expanded(
               child: Text(
@@ -125,18 +125,18 @@ class InventoryView extends GetView<InventoryController> {
                     ? '${controller.expiredCount} منتهي الصلاحية · ${controller.soonCount} ينتهي قريباً'
                     : '${controller.expiredCount} منتهي الصلاحية',
                 style: TextStyle(
-                    color: AppColors.redFg,
+                    color: context.palette.dangerFg,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600),
               ),
             ),
           ]),
         ),
-      ...controller.medicines.map(_medicineCard),
+      ...controller.medicines.map((m) => _medicineCard(m, context)),
     ];
   }
 
-  Widget _medicineCard(Medicine m) {
+  Widget _medicineCard(Medicine m, BuildContext context) {
     final expired = controller.isExpired(m);
     final soon = controller.isSoon(m);
     final accent = expired
@@ -147,11 +147,11 @@ class InventoryView extends GetView<InventoryController> {
 
     Widget badge;
     if (expired) {
-      badge = _pill('منتهي', AppColors.redBg, AppColors.redFg);
+      badge = _pill('منتهي', context.palette.dangerBg, context.palette.dangerFg);
     } else if (soon) {
-      badge = _pill('ينتهي قريباً', AppColors.yellowBg, AppColors.yellowFg);
+      badge = _pill('ينتهي قريباً', context.palette.warningBg, context.palette.warningFg);
     } else {
-      badge = _pill('صالح', AppColors.emeraldBg, AppColors.emeraldFg);
+      badge = _pill('صالح', context.palette.successBg, context.palette.successFg);
     }
 
     return Padding(
@@ -160,7 +160,7 @@ class InventoryView extends GetView<InventoryController> {
         onTap: () => Get.toNamed(Routes.medicineDetail, arguments: m.id),
         child: Container(
           padding: EdgeInsets.all(16.w),
-          decoration: cardDecoration().copyWith(
+          decoration: cardDecoration(context).copyWith(
             border: accent != null
                 ? Border(right: BorderSide(color: accent, width: 4))
                 : null,
@@ -176,18 +176,18 @@ class InventoryView extends GetView<InventoryController> {
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14.sp,
-                            color: expired ? AppColors.redFg : AppColors.textMain)),
+                            color: expired ? context.palette.dangerFg : context.palette.textMain)),
                     SizedBox(height: 2.h),
                     Row(children: [
                       Text('الكمية: ${m.quantity} ${m.unit}',
                           style: TextStyle(
-                              fontSize: 11.sp, color: AppColors.textMuted)),
+                              fontSize: 11.sp, color: context.palette.textMuted)),
                       if (m.quantity == 0)
                         Text(' · نفد المخزون',
                             style: TextStyle(
                                 fontSize: 11.sp,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.redFg)),
+                                color: context.palette.dangerFg)),
                     ]),
                   ],
                 ),
@@ -203,18 +203,18 @@ class InventoryView extends GetView<InventoryController> {
     );
   }
 
-  List<Widget> _vendorsSection() {
-    return controller.vendors.map(_vendorCard).toList();
+  List<Widget> _vendorsSection(BuildContext context) {
+    return controller.vendors.map((v) => _vendorCard(v, context)).toList();
   }
 
-  Widget _vendorCard(Vendor v) {
+  Widget _vendorCard(Vendor v, BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 10.h),
       child: GestureDetector(
         onTap: () => Get.toNamed(Routes.vendorDetail, arguments: v.id),
         child: Container(
           padding: EdgeInsets.all(16.w),
-          decoration: cardDecoration(),
+          decoration: cardDecoration(context),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -230,11 +230,11 @@ class InventoryView extends GetView<InventoryController> {
                         style: TextStyle(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.primaryDark)),
+                            color: context.palette.primaryStrong)),
                     SizedBox(height: 10.h),
-                    _iconLine(Icons.phone, v.phone),
+                    _iconLine(Icons.phone, v.phone, context),
                     SizedBox(height: 6.h),
-                    _iconLine(Icons.location_on_outlined, v.address),
+                    _iconLine(Icons.location_on_outlined, v.address, context),
                   ],
                 ),
               ),
@@ -246,9 +246,9 @@ class InventoryView extends GetView<InventoryController> {
     );
   }
 
-  Widget _iconLine(IconData icon, String text) => Row(
+  Widget _iconLine(IconData icon, String text, BuildContext context) => Row(
         children: [
-          Icon(icon, size: 14.sp, color: AppColors.primaryDark),
+          Icon(icon, size: 14.sp, color: context.palette.primaryStrong),
           SizedBox(width: 6.w),
           Expanded(
             child: Text(text,

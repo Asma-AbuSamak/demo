@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/utilities/date_utils.dart';
 import 'package:insighta/widgets/animal_badge.dart';
+import 'package:insighta/widgets/app_card.dart';
 import 'package:insighta/widgets/animal_form_fields.dart';
 import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/back_header.dart';
@@ -19,13 +20,13 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
           const BackHeader(title: 'ولادة وتزاوج'),
           Expanded(
             child: Obx(() {
-              if (controller.mode.value == null) return _selector();
+              if (controller.mode.value == null) return _selector(context);
               if (controller.mode.value == BbMode.birth) return _birth(context);
               return _breeding(context);
             }),
@@ -36,14 +37,14 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
   }
 
   // ── اختيار النوع ──
-  Widget _selector() {
+  Widget _selector(BuildContext context) {
     return ListView(
       padding: EdgeInsets.all(16.w),
       children: [
         SizedBox(height: 6.h),
         Center(
           child: Text('اختر نوع العملية التي تريد تسجيلها',
-              style: TextStyle(fontSize: 12.sp, color: AppColors.textMuted)),
+              style: TextStyle(fontSize: 12.sp, color: context.palette.textMuted)),
         ),
         SizedBox(height: 16.h),
         _modeCard(
@@ -52,6 +53,7 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
           icon: Icons.favorite,
           gradient: const [Color(0xFFA78BFA), Color(0xFF7C3AED)],
           onTap: () => controller.selectMode(BbMode.birth),
+          context: context,
         ),
         SizedBox(height: 12.h),
         _modeCard(
@@ -60,6 +62,7 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
           icon: Icons.favorite_border,
           gradient: const [Color(0xFFF472B6), Color(0xFFDB2777)],
           onTap: () => controller.selectMode(BbMode.breeding),
+          context: context,
         ),
       ],
     );
@@ -71,16 +74,13 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
     required IconData icon,
     required List<Color> gradient,
     required VoidCallback onTap,
+    required BuildContext context,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(16.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 16)],
-        ),
+        decoration: cardDecoration(context),
         child: Row(children: [
           Icon(Icons.chevron_left, size: 18.sp, color: const Color(0xFFD1D5DB)),
           const Spacer(),
@@ -90,7 +90,7 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
               Text(title,
                   style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
               SizedBox(height: 2.h),
-              Text(sub, style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+              Text(sub, style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
             ],
           ),
           SizedBox(width: 12.w),
@@ -111,7 +111,7 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
   Widget _birth(BuildContext context) {
     switch (controller.birthStep.value) {
       case BirthStep.parents:
-        return _birthParents();
+        return _birthParents(context);
       case BirthStep.details:
         return _birthDetails(context);
       case BirthStep.saved:
@@ -119,7 +119,7 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
     }
   }
 
-  Widget _birthParents() {
+  Widget _birthParents(BuildContext context) {
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -159,19 +159,19 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
                         margin: EdgeInsets.only(top: 10.h),
                         padding: EdgeInsets.all(10.w),
                         decoration: BoxDecoration(
-                          color: AppColors.accentLight,
+                          color: context.palette.accentLight,
                           border: Border.all(color: const Color(0xFFA7F3D0)),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(children: [
                           Icon(Icons.check_circle,
-                              color: AppColors.emeraldFg, size: 16.sp),
+                              color: context.palette.successFg, size: 16.sp),
                           SizedBox(width: 6.w),
                           Expanded(
                             child: Text('تم التعرف على الأب تلقائياً · ${controller.autoFatherMsg.value}',
                                 style: TextStyle(
                                     fontSize: 11.sp,
-                                    color: AppColors.emeraldFg,
+                                    color: context.palette.successFg,
                                     fontWeight: FontWeight.w600)),
                           ),
                         ]),
@@ -217,27 +217,27 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
                   height: 110.w,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: AppColors.accentLight,
+                    color: context.palette.accentLight,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: AppColors.primary, width: 2),
+                    border: Border.all(color: context.colors.primary, width: 2),
                   ),
                   child: controller.scanningNewborn.value
                       ? const CircularProgressIndicator()
                       : Column(mainAxisSize: MainAxisSize.min, children: [
-                          Icon(Icons.qr_code_scanner, size: 36.sp, color: AppColors.primaryDark),
+                          Icon(Icons.qr_code_scanner, size: 36.sp, color: context.palette.primaryStrong),
                           SizedBox(height: 4.h),
                           Text('مسح شريحة المولود',
                               style: TextStyle(
                                   fontSize: 11.sp,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.primaryDark)),
+                                  color: context.palette.primaryStrong)),
                         ]),
                 ),
               )),
           SizedBox(height: 10.h),
           Center(
             child: Text('أو أدخل الـ ID يدوياً',
-                style: TextStyle(fontSize: 11.sp, color: AppColors.textMuted)),
+                style: TextStyle(fontSize: 11.sp, color: context.palette.textMuted)),
           ),
           SizedBox(height: 12.h),
           AppField(
@@ -245,7 +245,7 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
             child: TextField(
               controller: controller.newbornCtrl,
               onChanged: (v) => controller.newbornVal.value = v,
-              decoration: appInputDecoration('مثال : RF-011'),
+              decoration: appInputDecoration(context, 'مثال : RF-011'),
             ),
           ),
           SizedBox(height: 14.h),
@@ -323,12 +323,12 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
               margin: EdgeInsets.only(top: 12.h),
               padding: EdgeInsets.all(12.w),
               decoration: BoxDecoration(
-                color: AppColors.redBg,
+                color: context.palette.dangerBg,
                 border: Border.all(color: const Color(0xFFFCA5A5)),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(children: [
-                Icon(Icons.warning_amber_rounded, color: AppColors.destructive, size: 18.sp),
+                Icon(Icons.warning_amber_rounded, color: context.colors.error, size: 18.sp),
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Column(
@@ -336,11 +336,11 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
                     children: [
                       Text('تحذير - الخرفان أقارب!',
                           style: TextStyle(
-                              color: AppColors.redFg,
+                              color: context.palette.dangerFg,
                               fontSize: 12.sp,
                               fontWeight: FontWeight.bold)),
                       Text(w,
-                          style: TextStyle(color: AppColors.redFg, fontSize: 11.sp)),
+                          style: TextStyle(color: context.palette.dangerFg, fontSize: 11.sp)),
                     ],
                   ),
                 ),
@@ -359,8 +359,8 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
                 child: ElevatedButton.icon(
                   onPressed: controller.canSaveBreeding ? controller.saveBreeding : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.amber,
-                    padding: EdgeInsets.symmetric(vertical: 15.h),
+                    backgroundColor: context.palette.brandAccent,
+                    padding: EdgeInsets.symmetric(vertical: 14.h),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   icon: Icon(Icons.check, color: Colors.white, size: 18.sp),
@@ -382,8 +382,7 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
     );
   }
 
-  Widget _dateField(BuildContext context, String label, RxString target) {
-    final has = target.value.isNotEmpty;
+  Widget _dateField(BuildContext context, String label, RxInt target) {
     return AppField(
       label: label,
       child: GestureDetector(
@@ -391,24 +390,24 @@ class BirthBreedingView extends GetView<BirthBreedingController> {
           final now = DateTime.now();
           final picked = await showDatePicker(
             context: context,
-            initialDate: has ? DateTime.parse(target.value) : now,
+            initialDate: DateTime.fromMillisecondsSinceEpoch(target.value, isUtc: true),
             firstDate: DateTime(now.year - 5),
             lastDate: DateTime(now.year + 1),
           );
-          if (picked != null) target.value = AppDate.addDaysIso(picked, 0);
+          if (picked != null) target.value = AppDate.dateOnlyEpoch(picked);
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 14.h),
           decoration: BoxDecoration(
-            color: AppColors.pageBg,
-            border: Border.all(color: AppColors.border),
+            color: context.palette.pageBg,
+            border: Border.all(color: context.palette.border),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(children: [
-            Icon(Icons.calendar_today_outlined, size: 16.sp, color: AppColors.textMuted),
+            Icon(Icons.calendar_today_outlined, size: 16.sp, color: context.palette.textMuted),
             SizedBox(width: 8.w),
-            Text(has ? AppDate.formatDate(target.value) : 'mm/dd/yyyy',
-                style: TextStyle(fontSize: 13.sp, color: AppColors.textMain)),
+            Text(AppDate.formatEpoch(target.value),
+                style: TextStyle(fontSize: 13.sp, color: context.palette.textMain)),
           ]),
         ),
       ),

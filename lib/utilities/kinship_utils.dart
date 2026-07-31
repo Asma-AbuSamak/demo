@@ -1,4 +1,4 @@
-import 'package:insighta/models/animal.dart';
+import 'package:insighta/models/animal/animal.dart';
 
 
 /// فحص القرابة بين حيوانين (والد/أخوة/أبناء عم).

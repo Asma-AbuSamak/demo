@@ -21,7 +21,8 @@ class NavController extends GetxController {
       DateFormat('EEEE، d MMMM yyyy', 'ar').format(DateTime.now());
 
   void changeTab(int i) => currentIndex.value = i;
-
+  
+//عشان نمنع المستخدم يضغط زر المزامنة عدة مرات متتالية بسرعة، ويصير عنا كذا عملية مزامنة شغالة بنفس الوقت
   Future<void> sync() async {
     if (syncing.value || pendingSync.value == 0) return;
     syncing.value = true;

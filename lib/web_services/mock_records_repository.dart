@@ -1,7 +1,7 @@
 import 'package:insighta/repo.dart/records_repository.dart';
-import '../models/breeding_record.dart';
-import '../models/death_record.dart';
-import '../models/sale_record.dart';
+import '../models/breeding_record/breeding_record.dart';
+import '../models/death_record/death_record.dart';
+import '../models/sale_record/sale_record.dart';
 import 'mock_data.dart';
 
 class MockRecordsRepository implements IRecordsRepository {

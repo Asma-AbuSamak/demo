@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:insighta/modules/login/login_controller.dart';
-import 'package:insighta/styles/app_colors.dart';
+import 'package:insighta/styles/theme_x.dart';
 import 'package:insighta/widgets/app_field.dart';
 import 'package:insighta/widgets/sheep_svg.dart';
 
@@ -13,16 +13,16 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.pageBg,
+      backgroundColor: context.palette.pageBg,
       body: Column(
         children: [
-          // القسم العلوي الأخضر: الشعار + الاسم
+          // القسم الأخضر: الشعار + الاسم
           Container(
             width: double.infinity,
             padding: EdgeInsets.only(top: 70.h, bottom: 40.h),
-            decoration: const BoxDecoration(
-              gradient: AppColors.headerGradient,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+            decoration: BoxDecoration(
+              gradient: context.palette.headerGradient,
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
             ),
             child: Column(
               children: [
@@ -59,13 +59,13 @@ class LoginView extends GetView<LoginController> {
                       style: TextStyle(
                           fontSize: 20.sp,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.textMain)),
+                          color: context.palette.textMain)),
                   SizedBox(height: 20.h),
                   AppField(
                     label: 'البريد الإلكتروني',
                     child: TextField(
                       onChanged: (v) => controller.email.value = v,
-                      decoration: appInputDecoration('example@farm.com'),
+                      decoration: appInputDecoration(context, 'example@farm.com'),
                     ),
                   ),
                   SizedBox(height: 14.h),
@@ -74,14 +74,14 @@ class LoginView extends GetView<LoginController> {
                     child: TextField(
                       obscureText: true,
                       onChanged: (v) => controller.password.value = v,
-                      decoration: appInputDecoration('••••••••'),
+                      decoration: appInputDecoration(context, '••••••••'),
                     ),
                   ),
                   SizedBox(height: 20.h),
                   ElevatedButton.icon(
                     onPressed: controller.login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryDark,
+                      backgroundColor: context.palette.primaryStrong,
                       padding: EdgeInsets.symmetric(vertical: 14.h),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
@@ -95,27 +95,27 @@ class LoginView extends GetView<LoginController> {
                   ),
                   SizedBox(height: 16.h),
                   Row(children: [
-                    const Expanded(child: Divider(color: AppColors.border)),
+                    Expanded(child: Divider(color: context.palette.border)),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12.w),
                       child: Text('أو',
                           style: TextStyle(
-                              color: AppColors.textMuted, fontSize: 12.sp)),
+                              color: context.palette.textMuted, fontSize: 12.sp)),
                     ),
-                    const Expanded(child: Divider(color: AppColors.border)),
+                    Expanded(child: Divider(color: context.palette.border)),
                   ]),
                   SizedBox(height: 16.h),
                   OutlinedButton(
                     onPressed: controller.continueAsGuest,
                     style: OutlinedButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: 14.h),
-                      side: const BorderSide(color: AppColors.border),
+                      side: BorderSide(color: context.palette.border),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14)),
                     ),
                     child: Text('المتابعة بدون تسجيل دخول',
                         style: TextStyle(
-                            color: AppColors.textMain,
+                            color: context.palette.textMain,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w600)),
                   ),
@@ -123,7 +123,7 @@ class LoginView extends GetView<LoginController> {
                   Text('البيانات محفوظة محلياً ويمكن مزامنتها لاحقاً',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: AppColors.textMuted, fontSize: 11.sp)),
+                          color: context.palette.textMuted, fontSize: 11.sp)),
                 ],
               ),
             ),
